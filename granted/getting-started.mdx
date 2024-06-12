@@ -116,7 +116,20 @@ In order to use Granted you'll need to install it on your system. Common Fate pr
     The assumego path is symlinked to granted so that they can both share keychain items without additional prompts. The homebrew install does this automatically but for a manual install on MacOS you’ll need to do it yourself.
 
   </Tab>
-  <Tab title="Linux">
+  <Tab title="Linux (APT)">
+
+  Download the latest Granted release using APT by following the steps below:
+
+  ```bash
+  # Add Common Fate repository
+  echo "deb [trusted=yes] https://apt.fury.io/commonfate/ /" | sudo tee /etc/apt/sources.list.d/fury.list
+
+  # Update APT and install Granted
+  sudo apt update && sudo apt install granted
+  ```
+  </Tab>
+
+  <Tab title="Linux (Manual)">
     Select the steps which match your system architecture. You can find your architecture by running `uname -m` from a terminal window.
 
     <Tabs
