@@ -1,0 +1,27 @@
+---
+title: "Availabilities"
+description: "Learn how to make Availabilities to be used in Common Fate."
+---
+
+## What are Availabilities?
+
+Availabilities are used in Common Fate to inform the policy engine what **role** to be attached to a set of resources identified by a selector. Avilabilities reference a [Selector](/config/selectors) which determines which targets should be available for what role.
+
+## Creating an Availability
+
+There are availabilies for each of the supported resources in Common Fate.
+
+Below is an example of a GCP Availability:
+
+```hcl workflow.tf
+resource "commonfate_gcp_project_availabilities" "availability-demo" {
+  workflow_id = commonfate_access_workflow.workflow-demo.id
+  gcp_role = "roles/owner"
+  gcp_project_selector_id = commonfate_gcp_project_selector.selector-demo.id
+  google_workspace_customer_id = commonfate_gcp_project_integration.main.google_workspace_customer_id
+}
+```
+
+This Availability tells Common Fate to handle any project resource selected by selector "sel_123" to be accessed with the "roles/owner" with the access workflow "wrk_123".
+
+This is the configuration aspect of access completed. The next component is creating the rules of who can access what resources based on actions. For this we use [Cedar Policies](https://www.cedarpolicy.com/en)

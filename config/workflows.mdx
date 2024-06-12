@@ -1,0 +1,92 @@
+---
+title: "Workflows"
+description: "This expains how to make workflows to be used in Common Fate."
+---
+
+## What are Access Workflows?
+
+Workflows are used in Common Fate to inform the policy engine **how long** access should last. Workflows connect with other resources like availabilities and Slack alerts.
+
+## Creating an Access Workflow
+
+Access workflows are created using the `commonfate_access_workflow` resource in Terraform.
+
+```hcl workflow.tf
+resource "commonfate_access_workflow" "workflow-demo" {
+  name                     = "demo"
+  access_duration_seconds  = 60 * 60
+  try_extend_after_seconds = 10 * 60
+  priority                 = 100
+}
+```
+
+<Info>
+Changing the access duration on a Workflow does not affect the duration of any existing Access Requests.
+
+For example, if you have an Access Workflow with a 2 hour access duration, create an Access Request, and then reduce the duration of the Access Workflow to 1 hour, the existing Access Request will still have a 2 hour duration.
+
+</Info>
+
+The `try_extend_after_seconds` field is used to specify the amount of time after access is activated that extending access can be attempted. As a starting point we recommend setting this to half of the `access_duration_seconds`.
+
+The `priority` governs whether the policy will be used. If a different policy with a higher priority and the same role exists that one will be used over another.
+
+## Specifying an activation expiry
+
+<Note>
+Added in Common Fate v1.41.0. Requires Common Fate Terraform Provider v2.16 or later.
+</Note>
+
+Common Fate can be configured to automatically close approved requests if they are not activated within a particular duration. To configure an activation expiry, set the `activation_expiry` variable in the Access Workflow:
+
+```diff
+resource "commonfate_access_workflow" "workflow-demo" {
+  name                     = "demo"
+  access_duration_seconds  = 60 * 60
+  try_extend_after_seconds = 10 * 60
+  priority                 = 100
++ activation_expiry        = 60 * 60 * 8
+}
+```
+
+The `activation_expiry` cause requests to expire if they are approved but not activated for a specified amount of time.
+
+In the example above any requests approved but not activated after 8 hours will be closed, requiring the user to re-request access.
+
+## Requiring a reason on Access Requests
+
+<Note>
+Added in Common Fate v1.42.0. Requires Common Fate Terraform Provider v2.17 or later.
+</Note>
+
+To require a reason on Access Requests for a particular workflow, you can specify the `validation` variable on the Access Workflow:
+
+```diff
+resource "commonfate_access_workflow" "workflow-demo" {
+  name                     = "demo"
+  access_duration_seconds  = 60 * 60
+  try_extend_after_seconds = 10 * 60
+  priority                 = 100
++ validation = {
++   has_reason = true
++ }
+}
+```
+
+## Specifying a default duration for Access Requests
+
+<Note>
+Added in Common Fate v1.42.0. Requires Common Fate Terraform Provider v2.17 or later.
+</Note>
+
+The Common Fate web console and CLI will default to the maximum duration when requesting access. You can change the default duration by providing the `default_duration_seconds` variable on the Access Workflow:
+
+```diff
+resource "commonfate_access_workflow" "workflow-demo" {
+  name                     = "demo"
+  access_duration_seconds  = 60 * 60
+  try_extend_after_seconds = 10 * 60
++ default_duration_seconds = 30 * 60
+  priority                 = 100
+}
+```

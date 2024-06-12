@@ -1,0 +1,146 @@
+---
+title: "Requesting Access"
+description: "Request Access using Common Fate"
+---
+
+You can request access using the CLI or the web application. There is a notable change in the Grant lifecycle compared to our open-source framework. Previously, in Glide, approved requests would be activated immediately. However, in asynchronous working environments, this posed challenges. For instance, if you requested access for a specific timeframe and the account owner was in a different timezone, you might miss the window of access.
+
+Common Fate introduces a separate activation step after approval by the requestor. The following is the requesting access flow:
+
+<img src="/images/cedar/cedar-actions-workflow.png" />
+
+## Using the CLI
+
+### List Available Roles
+
+You can list the available entitlements with:
+
+```bash
+cf access list available
+```
+
+### Request Access
+
+You can request access to entitlements with:
+
+```bash
+cf access ensure --target AWS::Account::00123456789 --role AWSAdministratorAccess
+```
+
+Multiple `--target` and `--role` pairs can be specified to request access to multiple entitlements at once. If one entitlement needs approval and another is auto-approved, you'll receive two Access Requests back. For example:
+
+```bash
+cf access ensure --target AWS::Account::00123456789 --role AWSAdministratorAccess --target GCP::Project::develop-123 --role Editor
+```
+
+<Note>In versions >=v3.9.0 the requested target and role will be added automatically to your `~/.aws/config` file. To disable this function when requesting access include the `--skip-local-config-update` flag</Note>
+
+### Approve Request
+
+Approve a pending access request:
+
+```bash
+cf access approve request --id req_2bK5UuJ9po73tgGmVRFPQGCA6vE
+```
+
+### Activate Request
+
+Re-run `cf access ensure` to activate access request:
+
+```bash
+cf access ensure --target GCP::Project::develop-123 --role Editor
+```
+
+The CLI indicates that access will be activated now. The user presses “Y” to confirm. Based on this, here are the meanings of the different states:
+
+- **GRANT_STATUS_UNSPECIFIED**: This represents the GRPC unspecified value for the enum. It should never be returned under normal operations.
+- **GRANT_STATUS_PROVISIONING**: Access is currently being provisioned.
+- **GRANT_STATUS_PENDING**: A grant exists, but it’s not yet active. If you encounter GRANT_STATUS_PENDING after running `cf access ensure`, manual review is required. Our CLI prints the request URL to stderr when run with the default output settings in this case.
+- **GRANT_STATUS_ACTIVE**: Access grant is active. If you see this status, you currently have access.
+- **GRANT_STATUS_CLOSED**: This indicates a grant that is no longer active.
+
+### Close Request
+
+Close a request that is no longer needed by:
+
+```bash
+cf access close request --id req_2bK5UuJ9po73tgGmVRFPQGCA6vE
+```
+
+### List Requests
+
+List all access requests in your deployment with their details:
+
+```bash
+cf access list requests
+```
+
+For JSON output, use the `--output json` flag with respective commands.
+
+## Using the webapp
+
+### Request Access
+
+1. Navigate to the "Access" tab in the sidebar. Search for and select the target:
+
+   <img src="/images/end-user/target.png" />
+
+2. Select the desired role:
+
+   <img
+     src="/images/end-user/select-role.png"
+     style={{
+       clipPath: "inset(1px 1px 1px 1px)",
+     }}
+   />
+
+3. Review and provide the access reason. Click "Request Access":
+   <img
+     src="/images/end-user/review-request.png"
+     style={{
+       clipPath: "inset(1px 1px 1px 1px)",
+     }}
+   />
+
+### Approve Request
+
+If you have the Slack intgration connected, requests can be approved directly in Slack:
+
+<img
+  src="/images/end-user/slack-approve.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+Otherwise, navigate to the Access tab in the sidebar, locate the request, and
+click Approve:
+
+<img
+  src="/images/end-user/approve.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+### Activate Request
+
+Navigate to the Access tab in the sidebar, locate the request, and click Activate:
+
+<img
+  src="/images/end-user/activate.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+### Close Request
+
+Navigate to the Access tab in the sidebar, locate the request, and click Close:
+
+<img
+  src="/images/end-user/close.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
