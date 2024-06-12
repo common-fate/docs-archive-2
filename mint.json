@@ -1,0 +1,192 @@
+{
+  "name": "Common Fate",
+  "logo": {
+    "dark": "/logo/dark.svg",
+    "light": "/logo/light.svg"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#2563EB",
+    "light": "#2563EB",
+    "dark": "#3B82F6",
+    "anchors": "#2563EB"
+  },
+  "topbarLinks": [
+    {
+      "name": "Support",
+      "url": "mailto:support@commonfate.io"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Book a Demo",
+    "url": "https://savvycal.com/common-fate/d3c7f2e9?sid=6316df29-cbd5-4ff7-bcbf-279933da1ae8"
+  },
+  "anchors": [
+    {
+      "name": "Community",
+      "icon": "slack",
+      "url": "https://join.slack.com/t/commonfatecommunity/shared_invite/zt-q4m96ypu-_gYlRWD3k5rIsaSsqP7QMg"
+    },
+    {
+      "name": "Blog",
+      "icon": "newspaper",
+      "url": "https://www.commonfate.io/blog?page=1"
+    }
+  ],
+  "tabs": [
+    {
+      "name": "User Guide",
+      "url": "user-guide"
+    },
+    {
+      "name": "Granted",
+      "url": "granted"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Setup",
+      "pages": [
+        "introduction",
+        "setup/deploy",
+        "setup/glossary",
+        "setup/troubleshooting",
+        "setup/security",
+        "setup/customize-auth-domain",
+        "setup/backups",
+        "setup/alerts",
+        "setup/managed-monitoring"
+      ]
+    },
+    {
+      "group": "Granted",
+      "pages": [
+        "granted/introduction",
+        "granted/getting-started",
+        {
+          "group": "Usage",
+          "pages": [
+            "granted/usage/assuming-roles",
+            "granted/usage/console",
+            "granted/usage/headless",
+            "granted/usage/export-credentials",
+            "granted/usage/dotenv",
+            "granted/usage/automatic-config-generation",
+            "granted/usage/storing-iam-credentials-securely",
+            "granted/usage/profile-registry"
+          ]
+        },
+        "granted/configuration",
+        {
+          "group": "Recipes",
+          "pages": [
+            "granted/recipes/access-requests",
+            "granted/recipes/automatically_reassume",
+            "granted/recipes/cache-commands",
+            "granted/recipes/credential-process",
+            "granted/recipes/disable-usage-tips",
+            "granted/recipes/eks",
+            "granted/recipes/inline-role-assumption",
+            "granted/recipes/pass",
+            "granted/recipes/ubuntu-keyring",
+            "granted/recipes/wsl-vscode"
+          ]
+        },
+        "granted/faq",
+        "granted/troubleshooting",
+        "granted/security",
+        {
+          "group": "Internals",
+          "pages": [
+            "granted/internals/different-assumers",
+            "granted/internals/shell-alias"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "User Guide",
+      "pages": [
+        "user-guide/cli/quickstart",
+        "user-guide/cli/requesting-access",
+        "user-guide/cli/config"
+      ]
+    },
+    {
+      "group": "Configuration",
+      "pages": [
+        "config/introduction",
+        "config/terraform",
+        "config/understanding_access",
+        "config/workflows",
+        "config/selectors",
+        "config/availabilities"
+      ]
+    },
+    {
+      "group": "Authorization Policies",
+      "pages": [
+        "authz/introduction",
+        "authz/validation",
+        "authz/vscode",
+        "authz/ci"
+      ]
+    },
+    {
+      "group": "Observability",
+      "pages": [
+        "observability/events",
+        "observability/authorization",
+        "observability/preview-access"
+      ]
+    },
+    {
+      "group": "Identity Integrations",
+      "pages": [
+        "integrations/sso/entra",
+        "integrations/sso/aws-idc",
+        "integrations/sso/okta",
+        "integrations/pagerduty",
+        "integrations/opsgenie"
+      ]
+    },
+    {
+      "group": "Access Integrations",
+      "pages": [
+        "integrations/aws",
+        "integrations/awsrds",
+        "integrations/auth0",
+        "integrations/bigquery",
+        "integrations/datastax",
+        "integrations/entra",
+        "integrations/gcp",
+        "integrations/iam-identity-center-groups",
+        "integrations/okta"
+      ]
+    },
+    {
+      "group": "Notification Integrations",
+      "pages": ["integrations/slack", "integrations/webhook"]
+    },
+    {
+      "group": "Audit Log Integrations",
+      "pages": ["integrations/s3-log-destination"]
+    },
+    {
+      "group": "Migration Guide",
+      "pages": ["migration-guide/migration-guide"]
+    }
+  ],
+  "footerSocials": {
+    "twitter": "https://twitter.com/CommonFateTech",
+    "github": "https://github.com/common-fate",
+    "linkedin": "https://www.linkedin.com/company/common-fate",
+    "slack": "https://join.slack.com/t/commonfatecommunity/shared_invite/zt-q4m96ypu-_gYlRWD3k5rIsaSsqP7QMg"
+  },
+  "redirects": [
+    {
+      "source": "/setup/authz",
+      "destination": "/authz/introduction"
+    }
+  ]
+}
