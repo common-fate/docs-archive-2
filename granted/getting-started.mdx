@@ -118,14 +118,27 @@ In order to use Granted you'll need to install it on your system. Common Fate pr
   </Tab>
   <Tab title="Linux (APT)">
 
-  Download the latest Granted release using APT by following the steps below:
+  Download the latest Granted release using APT by following the steps below. Our Linux releases are [signed with a separate GPG key to our binary files](/granted/security#linux-package-checksum-verification).
 
   ```bash
-  # Add Common Fate repository
-  echo "deb [trusted=yes] https://apt.fury.io/commonfate/ /" | sudo tee /etc/apt/sources.list.d/fury.list
+  # install GPG
+  sudo apt update && sudo apt install gpg
 
-  # Update APT and install Granted
-  sudo apt update && sudo apt install granted
+  # download the Common Fate Linux GPG key
+  wget -O- https://apt.releases.commonfate.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/common-fate-linux.gpg
+
+  # you can check the fingerprint of the key by running
+  # gpg --no-default-keyring --keyring /usr/share/keyrings/common-fate-linux.gpg --fingerprint
+  # the fingerprint of our Linux Releases key is 783A 4D1A 3057 4D2A BED0 49DD DE9D 631D 2D1D C944
+
+  # add the Common Fate APT repository
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/common-fate-linux.gpg] https://apt.releases.commonfate.io stable main" | sudo tee /etc/apt/sources.list.d/common-fate.list
+
+  # update your repositories
+  sudo apt update
+
+  # install Granted
+  sudo apt install granted
   ```
   </Tab>
 
@@ -198,9 +211,7 @@ To verify that the installation has succeeded, print the version of Granted by r
 ```
 ➜ granted -v
 
-
 Granted v0.27.5
-
 ```
 
 If you have any issues installing don't hesitate to [ask for help on our Slack](https://join.slack.com/t/commonfatecommunity/shared_invite/zt-q4m96ypu-_gYlRWD3k5rIsaSsqP7QMg).
