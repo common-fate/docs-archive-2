@@ -21,7 +21,7 @@ permit (
 permit (
     principal,
     action == Access::Action::"Activate",
-    resource
+    resource is AWS::IDC::AccountGrant
 )
 when { resource.target in [AWS::Account::"12345678912"] };
 
