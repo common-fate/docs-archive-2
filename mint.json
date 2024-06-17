@@ -129,7 +129,8 @@
         "authz/introduction",
         "authz/validation",
         "authz/vscode",
-        "authz/ci"
+        "authz/ci",
+        "authz/breakglass"
       ]
     },
     {
