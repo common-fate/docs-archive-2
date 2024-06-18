@@ -170,22 +170,8 @@ If after 10 minutes you do not see resources appear, check the logs of the `comm
 ## Provisioning access to GCP
 
 To grant and revoke access to GCP, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-In default deployments, there is a provisioner builtin to the main stack which can be configured using blocks.
 
-To configure the builtin Provisioner for GCP, add the `provisioner_gcp_config` config block as per the example below:
-
-```hcl
-module "common-fate-deployment" {
-  source = "common-fate/common-fate-deployment/aws"
-  version = "1.22.0"
-
-  provisioner_gcp_config = {
-    workload_identity_config_json = jsonencode(<Your Provisioner Workload Identity Config>)
-  }
-}
-```
-
-You'll additionally need to add the following Provisioner registration inside your Application Configuration repository:
+Add the following Provisioner registration inside your Application Configuration repository:
 
 ```hcl
 resource "commonfate_webhook_provisioner" "prod" {

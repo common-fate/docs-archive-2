@@ -222,11 +222,12 @@ Inside your Application Configuration repository, add the following module:
 # config/main.tf (in the Config folder, see: https://github.com/common-fate/byoc-aws-starter-config/tree/main/config)
 
 resource "commonfate_aws_idc_integration" "sandbox" {
-  name              = "AWS"
-  reader_role_arn   = "<ARN of the idc-reader-role>"
-  sso_instance_arn  = "<The AWS SSO Instance ARN>"
-  sso_region        = "<The region the AWS SSO instance is deployed to>"
-  identity_store_id = "<AWS identity store ID>"
+  name                   = "AWS"
+  reader_role_arn        = "<ARN of the idc-reader-role>"
+  provisioner_role_arn   = "<ARN of the idc-provisioner-role>"
+  sso_instance_arn       = "<The AWS SSO Instance ARN>"
+  sso_region             = "<The region the AWS SSO instance is deployed to>"
+  identity_store_id      = "<AWS identity store ID>"
 }
 ```
 
@@ -237,25 +238,8 @@ If after 10 minutes you do not see resources appear, check the logs of the `comm
 ## Provisioning access to AWS
 
 To grant and revoke access to AWS, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-In default deployments, there is a provisioner builtin to the main stack which can be configured using blocks.
 
-To configure the builtin Provisioner for AWS IDC, add the `provisioner_aws_idc_config` config block as per the example below:
-
-```hcl
-module "common-fate-deployment" {
-  source = "common-fate/common-fate-deployment/aws"
-  version = "1.22.0"
-
-  provisioner_aws_idc_config = {
-    idc_instance_arn      = "<Your Identity Center Instance ARN>"
-    idc_region            = "<Your Identity Center Region>"
-    role_arn              = "<ARN of the Common Fate Provision IAM role>"
-    idc_identity_store_id = "<Your Identity Store ID>"
-  }
-}
-```
-
-You'll additionally need to add the following Provisioner registration inside your Application Configuration repository:
+Add the following Provisioner registration inside your Application Configuration repository:
 
 ```hcl
 # config/main.tf (in the Config folder, see: https://github.com/common-fate/byoc-aws-starter-config/tree/main/config)
