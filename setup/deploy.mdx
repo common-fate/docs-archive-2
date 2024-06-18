@@ -5,24 +5,20 @@ description: "This guide outlines the steps for deploying the Common Fate IAM pl
 
 ## **Prerequisites**
 
-- An AWS account with necessary permissions.
+- An AWS account with necessary permissions. We recommend creating a dedicated AWS account within your organization for Common Fate.
 - Terraform installed and configured.
 - Access to DNS settings for domain configuration.
 
 ## Deployment Process
 
-The following guide should be used in conjunction with our [simple deployment example](https://github.com/common-fate/terraform-aws-common-fate-deployment/tree/main/examples/simple).
+The following guide should be used in conjunction with our [BYOC starter config](https://github.com/common-fate/byoc-aws-starter-config).
 
 <Note>
   If you're deploying into an existing VPC or want to limit network ingress to
-  your Common Fate deployment, refer to our [existing VPC
-  example](https://github.com/common-fate/terraform-aws-common-fate-deployment/tree/main/examples/existing-vpc).
-
-If you would like to customise the components in the deployment, refer to our [full example](https://github.com/common-fate/terraform-aws-common-fate-deployment/tree/main/examples/full).
-
+  your Common Fate deployment, refer to our [BYOVPC starter config](https://github.com/common-fate/byovpc-starter-config).
 </Note>
 
-### 1. Domain Configuration
+### Domain Configuration
 
 In order for your deployment to be accessible through HTTPS you need to configure DNS and register HTTPS certificates with [AWS Certificate Manager](https://aws.amazon.com/certificate-manager/).
 
@@ -36,40 +32,17 @@ After creating the ACM certificate you will need to configure the DNS verificati
 
 Once ACM shows that your domains are verified, you can continue with the deployment.
 
-### 2. Licence Key
+### Initial Deployment
 
-Common Fate requires a licence key to activate and run the Control Plane. The Terraform modules are configured to read secrets values from SSM Parameter Store.
-
-You will need to create a new `SecretString` in SSM Parameter Store and then use the ARN when deploying the Terraform.
-
-You can use the AWS CLI to create a secret in the region you are deploying to. We recommend naming these `"/<namespace>/<stage>/<secret name>"`.
-
-```bash
-aws ssm put-parameter \
-    --name "/common-fate/prod/licence-key" \
-    --value "mySecretValue" \
-    --type "SecureString" \
-    --region "ap-southeast-2"
-```
-
-Retrieve the ARN:
-
-```bash
-aws ssm get-parameter \
-    --name "/common-fate/prod/licence-key" --query Parameter.ARN
-```
-
-### 3. Initial Deployment
-
-Create a new folder called `common-fate-deployment`. In the folder, create a `main.tf` file as follows:
+Create a new folder called `deployment`. In the folder, create a `main.tf` file as follows:
 
 ```hcl
 module "common-fate-deployment" {
   source                = "common-fate/common-fate-deployment/aws"
-  version               = "1.22.0"
+  version               = "1.45.2"
   aws_region            = "<your target region>"
 
-  licence_key_ps_arn = <for licence key parameter ARN>
+  licence_key = <your Common Fate licence key>
 
   app_certificate_arn   = <your domain certificate ARN>
 
@@ -116,7 +89,6 @@ first_time_setup_config = {
   "saml_sso_acs_url": "https://your-auth-domain/saml2/idpresponse",
   "saml_sso_entity_id": "urn:amazon:cognito:sp:us-west-2_yourEntityID"
 }
-
 ```
 
 <Note>
@@ -130,10 +102,9 @@ module "common-fate-deployment" {
 + one_nat_gateway_per_az = false
 }
 ```
-
 </Note>
 
-### 4. Final DNS Configuration
+### DNS Configuration
 
 Now that your Application Load Balancer is deployed, you can configure your DNS records.
 
@@ -141,7 +112,7 @@ For your App domain create a CNAME record pointing to the `dns_cname_record_for_
 
 After deploying you can test everything is working by opening your App domain in a browser and you should be directed to the login screen.
 
-### 5. Set up SSO authentication
+### Set up SSO authentication
 
 Your users will sign in to Common Fate using SAML SSO. Follow a guide below for your identity provider:
 
@@ -165,7 +136,7 @@ Your users will sign in to Common Fate using SAML SSO. Follow a guide below for 
   Set up SSO using Okta.
 </Card>
 
-### 6. Set up integrations
+### Set up integrations
 
 <Card
   title="Set up notifications with Slack"
