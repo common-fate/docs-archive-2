@@ -19,9 +19,32 @@ resource "commonfate_gcp_project_availabilities" "availability-demo" {
   gcp_role = "roles/owner"
   gcp_project_selector_id = commonfate_gcp_project_selector.selector-demo.id
   google_workspace_customer_id = commonfate_gcp_project_integration.main.google_workspace_customer_id
+  role_priority = 1
 }
 ```
 
 This Availability tells Common Fate to handle any project resource selected by selector "sel_123" to be accessed with the "roles/owner" with the access workflow "wrk_123".
 
 This is the configuration aspect of access completed. The next component is creating the rules of who can access what resources based on actions. For this we use [Cedar Policies](https://www.cedarpolicy.com/en)
+
+The `role_priority` field can be used customize which role is suggested to end users in the UI. Consider the following scenerio:
+```hcl workflow.tf
+resource "commonfate_gcp_project_availabilities" "availability-demo" {
+  workflow_id = commonfate_access_workflow.workflow-demo.id
+  gcp_role = "roles/owner"
+  gcp_project_selector_id = commonfate_gcp_project_selector.selector-demo.id
+  google_workspace_customer_id = commonfate_gcp_project_integration.main.google_workspace_customer_id
+  role_priority = 1
+}
+
+resource "commonfate_gcp_project_availabilities" "availability-demo" {
+  workflow_id = commonfate_access_workflow.workflow-demo.id
+  gcp_role = "roles/viewer"
+  gcp_project_selector_id = commonfate_gcp_project_selector.selector-demo.id
+  google_workspace_customer_id = commonfate_gcp_project_integration.main.google_workspace_customer_id
+  role_priority = 2
+}
+
+```
+
+When availabilities are created from these availability specs, `roles/viewer` will be used as the suggested role for availability made by these availability specs.
