@@ -166,3 +166,18 @@ The `targets` field includes resources which are affected by the action.
 The `context.request.client_addr` field contains the IP address of the actor that performed the action.
 
 The `context.authz.eval` field contains the authorization evaluation associated with a particular action. You can [inspect the authorization event](/observability/authorization) in Common Fate.
+
+## Filtering for actions
+
+You can configure a webhook to filter for specific actions by updating your Terraform config.
+For example, to send only the events for `grant.approved` use the following configuration:
+
+```diff
+resource "commonfate_webhook_integration" "my_webhook_destination" {
+  name                      = "My Webhook Destination"
+  url                       = "https://webhook.example.com/webhook/path"
+  send_audit_log_events     = true
+  send_authorization_events = true
++ filter_for_actions = ["grant.approved"]
+}
+```
