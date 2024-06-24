@@ -13,3 +13,11 @@ Run the following command at the root of your documentation (where mint.json is)
 ```
 mintlify dev
 ```
+
+### Resize images to a max width of 1920px
+
+This command will reduce any image wider than 1920px to 1920px maintaining aspect ratio
+
+```
+./resize.sh ./images
+```
