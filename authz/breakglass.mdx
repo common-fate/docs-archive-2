@@ -39,9 +39,11 @@ permit (
 When breakglass is permitted for one or more entitlements on an access request, a user will see a breakglass checkbox above the *Activate* button on the request detail page in the web console.
 This breakglass checkbox will only be shown when the user has permission to use breakglass to activate one or more of the entitlements on their request.
 
+<img src="/images/breakglass-screenshot.png" />
+
 ### Detecting Usage of Breakglass Access
 
 When a grant is activated using breakglass, an event will be emitted with the action type "grant.breakglass_activated".
 You can configure event processing to detect this event type and trigger as action as required.
 
-For teams with slack notifications configured, when breakglass access is used, the slack notifications will have an additional alert section indicating that breakglass was used. 
+For teams with slack notifications configured, when breakglass access is used, the slack notifications will have an additional alert section indicating that breakglass was used.
