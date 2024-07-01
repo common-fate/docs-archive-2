@@ -7,7 +7,7 @@ You can request access using the CLI or the web application. There is a notable 
 
 Common Fate introduces a separate activation step after approval by the requestor. The following is the requesting access flow:
 
-<img src="/images/cedar/cedar-actions-workflow.png" />
+<img src="/images/cedar/cedar-actions-workflow-new.png" />
 
 ## Using the CLI
 
@@ -33,7 +33,11 @@ Multiple `--target` and `--role` pairs can be specified to request access to mul
 cf access ensure --target AWS::Account::00123456789 --role AWSAdministratorAccess --target GCP::Project::develop-123 --role Editor
 ```
 
-<Note>In versions >=v3.9.0 the requested target and role will be added automatically to your `~/.aws/config` file. To disable this function when requesting access include the `--skip-local-config-update` flag</Note>
+<Note>
+  In versions >=v3.9.0 the requested target and role will be added automatically
+  to your `~/.aws/config` file. To disable this function when requesting access
+  include the `--skip-local-config-update` flag
+</Note>
 
 ### Approve Request
 
