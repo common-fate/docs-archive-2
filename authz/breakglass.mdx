@@ -29,7 +29,7 @@ when { resource.target in [AWS::Account::"12345678912"] };
 @advice("You can use breakglass access for this request because you are on the security team")
 permit (
     principal in Entra::Group::"ID_OF_SECURITY_GROUP",
-    action == Access::Action::"Activate",
+    action == Access::Action::"BreakglassActivate",
     resource
 );
 ```
