@@ -13,7 +13,7 @@ Granted which is powered by [Go under the hood](https://github.com/common-fate/g
 ```go
 
 type Assumer interface {
-	// AssumeTerminal should follow the required process for it implemetation and return aws credentials ready to be exported to the terminal environment
+	// AssumeTerminal should follow the required process for it implementation and return aws credentials ready to be exported to the terminal environment
 	AssumeTerminal(context.Context, *Profile, ConfigOpts) (aws.Credentials, error)
 	// AssumeConsole should follow any console specific credentials processes, this may be the same as AssumeTerminal under the hood
 	AssumeConsole(context.Context, *Profile, ConfigOpts) (aws.Credentials, error)
