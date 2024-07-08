@@ -95,7 +95,12 @@ resource "commonfate_access_workflow" "workflow-demo" {
   later.
 </Note>
 
-By default, the Common Fate web console will not allow extensions, if the `extension_conditions` configuration is not specified on the Access Workflow.
+By default, the Common Fate web console will not allow extensions if the `extension_conditions` configuration is not specified on the Access Workflow.
+
+<Note>
+  A cedar policy also needs to be defined to allow the
+  Access::Action::"Extension" action on the resource.
+</Note>
 
 ```diff
 resource "commonfate_access_workflow" "workflow-demo" {
