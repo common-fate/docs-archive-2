@@ -108,7 +108,6 @@ You can now create an access workflow and availabilities:
 resource "commonfate_access_workflow" "rds" {
   name                     = "RDS"
   access_duration_seconds  = 60
-  try_extend_after_seconds = 5
   priority                 = 3
 }
 
