@@ -107,7 +107,6 @@ You can now create an access workflow and availabilities:
 resource "commonfate_access_workflow" "entra" {
   name                     = "entra"
   access_duration_seconds  = 60 * 60 * 2
-  try_extend_after_seconds = 60 * 60
   priority                 = 1
 }
 
