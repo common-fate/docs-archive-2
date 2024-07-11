@@ -48,6 +48,43 @@ Entering the wrong `sso_region` will result in this cryptic looking error:
 
 If you don't know which SSO region your AWS organization is in, you'll need to check with whoever set up your AWS SSO service. Alternatively, you can just guess until you get it right. There's only [twenty-one](https://docs.aws.amazon.com/general/latest/gr/sso.html) of them.
 
+### UnauthorizedException: Session token not found or invalid
+
+If you receive the following error when running `assume`:
+
+```bash
+[✘] operation error SSO: GetRoleCredentials, https response error StatusCode: 401, RequestID: 39287367-65d6-41bc-a01f-ebc34b65e5b4, UnauthorizedException: Session token not found or invalid
+```
+
+Run the following steps to resolve the issue:
+
+1. Clear the AWS SSO plaintext token cache:
+  ```bash
+  rm -rf ~/.aws/sso/cache
+  ```
+
+  After completing this step, retry running `assume`. If `assume` still fails, continue below.
+
+1. Clear the Granted CLI cache:
+  ```bash
+  granted cache clear
+  ```
+
+1. If you are using MacOS, open Keychain Access and remove any entries starting with `granted` in the login keychain.
+
+1. Run the Granted `credential-process` command and inspect the output:
+  ```bash
+  granted credential-process --profile=<name of AWS profile you want to access>
+  ```
+
+  If you receive an error such as the following:
+  ```
+  [✘] error when retrieving credentials from custom process. please login using 'granted sso login --sso-start-url https://example.awsapps.com/start --sso-region us-east-1'
+  ```
+
+  Run the corresponding Granted command to reauthenticate.
+
+
 ## Where does Granted store its settings?
 
 Granted settings are in `~/.granted`. If your trying to find where a setting is coming from, also check these directories:
