@@ -4,7 +4,8 @@ description: "Setup guide for the Common Fate Auth0 integration."
 ---
 
 <Note>
-Added in Common Fate v1.42.0. Requires Common Fate Terraform Provider v2.17 or later.
+  Added in Common Fate v1.42.0. Requires Common Fate Terraform Provider v2.17 or
+  later.
 </Note>
 
 This guide will walk you through integrating Common Fate with Auth0. By the end of this guide, you'll have a functioning integration with Common Fate, allowing it to provision access to Auth0 Organizations.
@@ -80,7 +81,6 @@ You can now create an access workflow and availabilities:
 resource "commonfate_access_workflow" "auth0" {
   name                     = "auth0"
   access_duration_seconds  = 60 * 60 * 2
-  try_extend_after_seconds = 60 * 60
   priority                 = 1
 }
 

@@ -118,7 +118,6 @@ locals {
 resource "commonfate_access_workflow" "datastax" {
   name                     = "DataStax"
   access_duration_seconds  = 60 * 60 * 2
-  try_extend_after_seconds = 60 * 60
   priority                 = 1
 }
 
