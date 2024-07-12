@@ -91,8 +91,8 @@ resource "commonfate_access_workflow" "workflow-demo" {
 ## Enabling Access Request Extensions
 
 <Note>
-  Added in Common Fate v4.4.0. Requires Common Fate Terraform Provider v2.22 or
-  later.
+  Added in Common Fate v4.4.0. Requires Common Fate Terraform Provider v2.22.0
+  or later.
 </Note>
 
 By default, the Common Fate web console will not allow extensions if the `extension_conditions` configuration is not specified on the Access Workflow.
@@ -114,8 +114,8 @@ resource "commonfate_access_workflow" "workflow-demo" {
 }
 ```
 
-The `maximum_number_of_extensions` parameter sets the number of times an Access Request can be extended. If not set, it defaults to zero, effectively disabling extensions.
+The `maximum_number_of_extensions` parameter sets the number of times an Access Request can be extended. This can be set to 0, effectively disabling extensions.
 
-The `extension_duration_seconds` parameter defines the duration, in seconds, that the Access Request will be extended by. If not specified, it defaults to the same duration as the access_duration_seconds. In the example above, if extension_duration_seconds is not specified, it will default to 60 \* 60 (the same as access_duration_seconds).
+The `extension_duration_seconds` parameter defines the duration, in seconds, that the Access Request will be extended by.
 
 Using the configuration above, if you have 35 minutes remaining on your Access Request, you can extend the duration by 10 minutes. This will increase the remaining time to 45 minutes. You can extend the access up to two times, meaning you can add a total of 20 minutes to your initial access duration.
