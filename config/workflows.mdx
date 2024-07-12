@@ -15,7 +15,6 @@ Access workflows are created using the `commonfate_access_workflow` resource in 
 resource "commonfate_access_workflow" "workflow-demo" {
   name                     = "demo"
   access_duration_seconds  = 60 * 60
-  try_extend_after_seconds = 10 * 60
   priority                 = 100
 }
 ```
@@ -27,14 +26,13 @@ For example, if you have an Access Workflow with a 2 hour access duration, creat
 
 </Info>
 
-The `try_extend_after_seconds` field is used to specify the amount of time after access is activated that extending access can be attempted. As a starting point we recommend setting this to half of the `access_duration_seconds`.
-
 The `priority` governs whether the policy will be used. If a different policy with a higher priority and the same role exists that one will be used over another.
 
 ## Specifying an activation expiry
 
 <Note>
-Added in Common Fate v1.41.0. Requires Common Fate Terraform Provider v2.16 or later.
+  Added in Common Fate v1.41.0. Requires Common Fate Terraform Provider v2.16 or
+  later.
 </Note>
 
 Common Fate can be configured to automatically close approved requests if they are not activated within a particular duration. To configure an activation expiry, set the `activation_expiry` variable in the Access Workflow:
@@ -43,7 +41,6 @@ Common Fate can be configured to automatically close approved requests if they a
 resource "commonfate_access_workflow" "workflow-demo" {
   name                     = "demo"
   access_duration_seconds  = 60 * 60
-  try_extend_after_seconds = 10 * 60
   priority                 = 100
 + activation_expiry        = 60 * 60 * 8
 }
@@ -56,7 +53,8 @@ In the example above any requests approved but not activated after 8 hours will 
 ## Requiring a reason on Access Requests
 
 <Note>
-Added in Common Fate v1.42.0. Requires Common Fate Terraform Provider v2.17 or later.
+  Added in Common Fate v1.42.0. Requires Common Fate Terraform Provider v2.17 or
+  later.
 </Note>
 
 To require a reason on Access Requests for a particular workflow, you can specify the `validation` variable on the Access Workflow:
@@ -65,7 +63,6 @@ To require a reason on Access Requests for a particular workflow, you can specif
 resource "commonfate_access_workflow" "workflow-demo" {
   name                     = "demo"
   access_duration_seconds  = 60 * 60
-  try_extend_after_seconds = 10 * 60
   priority                 = 100
 + validation = {
 +   has_reason = true
@@ -76,7 +73,8 @@ resource "commonfate_access_workflow" "workflow-demo" {
 ## Specifying a default duration for Access Requests
 
 <Note>
-Added in Common Fate v1.42.0. Requires Common Fate Terraform Provider v2.17 or later.
+  Added in Common Fate v1.42.0. Requires Common Fate Terraform Provider v2.17 or
+  later.
 </Note>
 
 The Common Fate web console and CLI will default to the maximum duration when requesting access. You can change the default duration by providing the `default_duration_seconds` variable on the Access Workflow:
@@ -85,8 +83,39 @@ The Common Fate web console and CLI will default to the maximum duration when re
 resource "commonfate_access_workflow" "workflow-demo" {
   name                     = "demo"
   access_duration_seconds  = 60 * 60
-  try_extend_after_seconds = 10 * 60
 + default_duration_seconds = 30 * 60
   priority                 = 100
 }
 ```
+
+## Enabling Access Request Extensions
+
+<Note>
+  Added in Common Fate v4.4.0. Requires Common Fate Terraform Provider v2.22.0
+  or later.
+</Note>
+
+By default, the Common Fate web console will not allow extensions if the `extension_conditions` configuration is not specified on the Access Workflow.
+
+<Note>
+  A cedar policy also needs to be defined to allow the
+  Access::Action::"Extension" action on the resource.
+</Note>
+
+```diff
+resource "commonfate_access_workflow" "workflow-demo" {
+  name                     = "demo"
+  access_duration_seconds  = 60 * 60
+  priority                 = 100
++ extension_conditions = {
++   maximum_number_of_extensions = 2
++   extension_duration_seconds = 10 * 60
++ }
+}
+```
+
+The `maximum_number_of_extensions` parameter sets the number of times an Access Request can be extended. This can be set to 0, effectively disabling extensions.
+
+The `extension_duration_seconds` parameter defines the duration, in seconds, that the Access Request will be extended by.
+
+Using the configuration above, if you have 35 minutes remaining on your Access Request, you can extend the duration by 10 minutes. This will increase the remaining time to 45 minutes. You can extend the access up to two times, meaning you can add a total of 20 minutes to your initial access duration.
