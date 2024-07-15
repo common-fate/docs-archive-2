@@ -9,7 +9,33 @@ Common Fate introduces a separate activation step after approval by the requesto
 
 <img src="/images/cedar-authorization-workflow.png" />
 
-## Using the CLI
+## Granted Integration (CLI)
+
+### Common Fate built-in Profile Registry
+
+Granted connects with Common Fate to automatically sync available AWS profiles into your **`~/.aws/config`** file. Follow the instructions [here](https://docs.commonfate.io/granted/usage/profile-registry#common-fate-built-in-profile-registry) to set this up.
+
+{" "}
+
+<img
+  src="/images/end-user/profile-registry.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+### Request Access using Granted
+
+[Granted](https://docs.commonfate.io/granted/introduction) integrates with Common Fate allowing users to request access from the CLI. Please follow [this guide](https://docs.commonfate.io/granted/recipes/access-requests) to set this up.
+
+{" "}
+
+<img
+  src="/images/end-user/granted.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
 
 ### List Available Roles
 
@@ -81,6 +107,64 @@ cf access list requests
 
 For JSON output, use the `--output json` flag with respective commands.
 
+## Slack
+
+### Request Access
+
+Navigate to your designated slack access channel, type /access, and select the Common Fate app.
+
+<img
+  src="/images/end-user/slack-commands.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+Press enter after typing /access and you will be navigated to a pop-up through which
+you can request access.
+<img
+  src="/images/end-user/slack-integrations-list.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+### Approve Request
+
+Click the "Approve" button to approve the request:
+
+<img
+  src="/images/end-user/slack-approve.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+### Activate Request
+
+Activate can only be done through the webapp.
+
+### Extend Request
+
+If extensions are enabled for the resource, a user can click the "Extend" button to extend the request:
+
+<img
+  src="/images/end-user/slack-extend.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+### Close Request
+
+Click the "Close" button to close the request:
+
+<img
+  src="/images/end-user/slack-approve.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
 ## Using the webapp
 
 ### Request Access
@@ -113,15 +197,6 @@ For JSON output, use the `--output json` flag with respective commands.
 
 ### Approve Request
 
-If you have the Slack integration connected, requests can be approved directly in Slack:
-
-<img
-  src="/images/end-user/slack-approve.png"
-  style={{
-    clipPath: "inset(1px 1px 1px 1px)",
-  }}
-/>
-
 ### Activate Request
 
 Navigate to the Access tab in the sidebar, locate the request, and click Activate:
@@ -153,30 +228,12 @@ Navigate to the Access tab in the sidebar, locate the request, and click Extend:
   }}
 />
 
-If you have the Slack integration connected, requests can be extended directly in Slack:
-
-<img
-  src="/images/end-user/slack-extend.png"
-  style={{
-    clipPath: "inset(1px 1px 1px 1px)",
-  }}
-/>
-
 ### Close Request
 
 Navigate to the Access tab in the sidebar, locate the request, and click Close:
 
 <img
   src="/images/end-user/close.png"
-  style={{
-    clipPath: "inset(1px 1px 1px 1px)",
-  }}
-/>
-
-If you have the Slack integration connected, requests can be closed directly in Slack:
-
-<img
-  src="/images/end-user/slack-approve.png"
   style={{
     clipPath: "inset(1px 1px 1px 1px)",
   }}
