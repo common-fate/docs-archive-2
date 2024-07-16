@@ -123,7 +123,7 @@ Once you have confirmed your deployment is working as expected, the provisioner 
 ## v1.44.0
 
 ### Slack and PagerDuty infrastructure configuration has been deprecated
-v1.44.0 removes the requirement to configure Slack and PAgerDuty in both your application configuration and infrastructure configuration.
+v1.44.0 removes the requirement to configure Slack and PagerDuty in both your application configuration and infrastructure configuration.
 After upgrading to v1.44.0 you can remove the additional variables from your `common-fate` module.
 
 ```diff
@@ -392,7 +392,7 @@ resource "commonfate_webhook_provisioner" "prod" {
 }
 ```
 
-After this, you will need to reinstall the pagerduty app in the deployment. You can do so by commenting out the `commonfate_pagerduty_integration` resource and then running `terraform apply`, and then adding it back in and running `terraform apply` again.
+After this, you will need to reinstall the PagerDuty app in the deployment. You can do so by commenting out the `commonfate_pagerduty_integration` resource and then running `terraform apply`, and then adding it back in and running `terraform apply` again.
 
 Finally, follow the [GCP integration guide](../integrations/gcp#gcp-folder-selectors) to configure your selector and availabilities.
 
