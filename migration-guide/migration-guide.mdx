@@ -59,25 +59,6 @@ The Slack and PagerDuty configuration was previously deprecated and is now sourc
 - slack_signing_secret_ps_arn
 ```
 
-## v1.44.0
-
-### Slack and PagerDuty infrastructure configuration has been deprecated
-v1.44.0 removes the requirement to configure Slack and PAgerDuty in both your application configuration and infrastructure configuration.
-After upgrading to v1.44.0 you can remove the additional variables from your `common-fate` module.
-
-```diff
-module "common-fate" {
-  source = "common-fate/common-fate-deployment/aws"
-  version = "1.44.0"
-
-- pager_duty_client_id  = <pager duty client id>
-- pager_duty_client_secret_ps_arn = <pager duty client secret parameter store ARN>
-- slack_client_id = <slack client id>
-- slack_client_secret_ps_arn  = <slack client secret parameter store ARN>
-- slack_signing_secret_ps_arn = <slack signing secret parameter store ARN>
-}
-```
-
 ## v1.45.0
 
 #### Prerequisites
@@ -137,6 +118,27 @@ resource "commonfate_gcp_integration" "sandbox" {
 Once you have deployed your configuration you will be able to upgrade to v1.45.0
 You may leave the infrastructure provider configuration blocks unchanged incase you need to rollback your deployment.
 Once you have confirmed your deployment is working as expected, the provisioner configuration blocks can be safely removed from your infrastucture.
+
+
+## v1.44.0
+
+### Slack and PagerDuty infrastructure configuration has been deprecated
+v1.44.0 removes the requirement to configure Slack and PAgerDuty in both your application configuration and infrastructure configuration.
+After upgrading to v1.44.0 you can remove the additional variables from your `common-fate` module.
+
+```diff
+module "common-fate" {
+  source = "common-fate/common-fate-deployment/aws"
+  version = "1.44.0"
+
+- pager_duty_client_id  = <pager duty client id>
+- pager_duty_client_secret_ps_arn = <pager duty client secret parameter store ARN>
+- slack_client_id = <slack client id>
+- slack_client_secret_ps_arn  = <slack client secret parameter store ARN>
+- slack_signing_secret_ps_arn = <slack signing secret parameter store ARN>
+}
+```
+
 
 ## v1.41.2
 
