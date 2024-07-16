@@ -9,33 +9,7 @@ Common Fate introduces a separate activation step after approval by the requesto
 
 <img src="/images/cedar-authorization-workflow.png" />
 
-## Granted Integration (CLI)
-
-### Common Fate built-in Profile Registry
-
-Granted connects with Common Fate to automatically sync available AWS profiles into your **`~/.aws/config`** file. Follow the instructions [here](https://docs.commonfate.io/granted/usage/profile-registry#common-fate-built-in-profile-registry) to set this up.
-
-{" "}
-
-<img
-  src="/images/end-user/profile-registry.png"
-  style={{
-    clipPath: "inset(1px 1px 1px 1px)",
-  }}
-/>
-
-### Request Access using Granted
-
-[Granted](https://docs.commonfate.io/granted/introduction) integrates with Common Fate allowing users to request access from the CLI. Please follow [this guide](https://docs.commonfate.io/granted/recipes/access-requests) to set this up.
-
-{" "}
-
-<img
-  src="/images/end-user/granted.png"
-  style={{
-    clipPath: "inset(1px 1px 1px 1px)",
-  }}
-/>
+## Using CLI
 
 ### List Available Roles
 
@@ -111,7 +85,7 @@ For JSON output, use the `--output json` flag with respective commands.
 
 ### Request Access
 
-Navigate to your designated slack access channel, type /access, and select the Common Fate app.
+Navigate to your designated slack access channel, type `/access`, and select the Common Fate app.
 
 <img
   src="/images/end-user/slack-commands.png"
@@ -119,14 +93,24 @@ Navigate to your designated slack access channel, type /access, and select the C
     clipPath: "inset(1px 1px 1px 1px)",
   }}
 />
-Press enter after typing /access and you will be navigated to a pop-up through which
-you can request access.
+
+Press enter after typing `/access` and you will be navigated to a pop-up through which
+you can select the resource type.
+
 <img
   src="/images/end-user/slack-integrations-list.png"
   style={{
     clipPath: "inset(1px 1px 1px 1px)",
   }}
 />
+
+A request access form will appear. Follow these steps:
+
+1. Select the target resource.
+2. Choose the appropriate role.
+3. Provide a reason for your request.
+4. A dropdown menu will appear for the access duration. Select the appropriate duration.
+5. Click "Submit" to finalize your request.
 
 ### Approve Request
 
@@ -141,7 +125,7 @@ Click the "Approve" button to approve the request:
 
 ### Activate Request
 
-Activate can only be done through the webapp.
+Activation of approved access requests can only be done through the webapp.
 
 ### Extend Request
 
@@ -156,7 +140,8 @@ Click the "Extend" button to extend the request:
 
 <Note>
   Extensions on the access request are only permitted if the configuration is
-  enabled. For setup instructions, refer to Enabling Access Request Extensions.
+  enabled. For setup instructions, refer to [Enabling Access Request
+  Extensions](https://docs.commonfate.io/config/workflows#enabling-access-request-extensions).
 </Note>
 
 ### Close Request
@@ -244,7 +229,8 @@ Navigate to the Access tab in the sidebar, locate the request, and click Extend:
 
 <Note>
   Extensions on the access request are only permitted if the configuration is
-  enabled. For setup instructions, refer to Enabling Access Request Extensions.
+  enabled. For setup instructions, refer to [Enabling Access Request
+  Extensions](https://docs.commonfate.io/config/workflows#enabling-access-request-extensions).
 </Note>
 
 ### Close Request
