@@ -81,13 +81,92 @@ cf access list requests
 
 For JSON output, use the `--output json` flag with respective commands.
 
+## Using Slack
+
+### Request Access
+
+Navigate to your designated slack access channel, type `/access`, and select the Common Fate app.
+
+<img
+  src="/images/end-user/slack-commands.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+Press enter after typing `/access` and you will be navigated to a pop-up through which
+you can select the resource type.
+
+<img
+  src="/images/end-user/slack-integrations-list.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+A request access form will appear. Follow these steps:
+
+1. Select the target resource.
+2. Choose the appropriate role.
+3. Provide a reason for your request.
+4. A dropdown menu will appear for the access duration. Select the appropriate duration.
+5. Click "Submit" to finalize your request.
+
+### Approve Request
+
+Click the "Approve" button to approve the request:
+
+<img
+  src="/images/end-user/slack-approve.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+### Activate Request
+
+Activation of approved access requests can only be done through the webapp.
+
+### Extend Request
+
+Click the "Extend" button to extend the request:
+
+<img
+  src="/images/end-user/slack-extend.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+<Note>
+  Extensions on the access request are only permitted if the configuration is
+  enabled. For setup instructions, refer to [Enabling Access Request
+  Extensions](https://docs.commonfate.io/config/workflows#enabling-access-request-extensions).
+</Note>
+
+### Close Request
+
+Click the "Close" button to close the request:
+
+<img
+  src="/images/end-user/slack-approve.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
 ## Using the webapp
 
 ### Request Access
 
-1. Navigate to the "Access" tab in the sidebar. Search for and select the target:
+1. Navigate to the "Request" tab in the sidebar. Search for and select the target:
 
-   <img src="/images/end-user/target.png" />
+   <img
+     src="/images/end-user/request.png"
+     style={{
+       clipPath: "inset(1px 1px 1px 1px)",
+     }}
+   />
 
 2. Select the desired role:
 
@@ -108,17 +187,7 @@ For JSON output, use the `--output json` flag with respective commands.
 
 ### Approve Request
 
-If you have the Slack integration connected, requests can be approved directly in Slack:
-
-<img
-  src="/images/end-user/slack-approve.png"
-  style={{
-    clipPath: "inset(1px 1px 1px 1px)",
-  }}
-/>
-
-Otherwise, navigate to the Access tab in the sidebar, locate the request, and
-click Approve:
+Navigate to the Access tab in the sidebar, locate the request, and click Approve:
 
 <img
   src="/images/end-user/approve.png"
@@ -137,6 +206,32 @@ Navigate to the Access tab in the sidebar, locate the request, and click Activat
     clipPath: "inset(1px 1px 1px 1px)",
   }}
 />
+
+If breakglass access is enabled, you can activate it by checking the confirmation box. Once confirmed, click the "Activate" button to proceed:
+
+<img
+  src="/images/end-user/breakglass-activate.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+### Extend Request
+
+Navigate to the Access tab in the sidebar, locate the request, and click Extend:
+
+<img
+  src="/images/end-user/extend.png"
+  style={{
+    clipPath: "inset(1px 1px 1px 1px)",
+  }}
+/>
+
+<Note>
+  Extensions on the access request are only permitted if the configuration is
+  enabled. For setup instructions, refer to [Enabling Access Request
+  Extensions](https://docs.commonfate.io/config/workflows#enabling-access-request-extensions).
+</Note>
 
 ### Close Request
 
