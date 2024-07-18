@@ -9,12 +9,15 @@ Common Fate uses [authorization policy-as-code](/authz/introduction) powered by 
 
 If you're running a BYOC ("Bring-Your-Own-Cloud") deployment of Common Fate in your own AWS account, you'll need to be on `v1.31.0` or later of the `common-fate/common-fate-deployment/aws` Terraform module.
 
-You'll also need the [Common Fate `cf` CLI installed](/user-guide/cli/quickstart) - v1.12.0 or higher. You can check this by running `cf --version`. You should see an output similar to the below
+You'll also need the [Cedar CLI installed](https://github.com/cedar-policy/cedar). To install it:
+
+1. Clone the [Cedar repository](https://github.com/cedar-policy/cedar) locally.
+2. In the root of the repository, run `cargo build`.
+
+You can check this by running `cedar --version`. You should see an output similar to the below:
 
 ```bash
-cf --version
-cf version v1.12.0
-# version must be v1.12.0 or higher for this guide.
+cedar-policy-cli 4.0.0
 ```
 
 ## Validating Cedar policies using the CLI
@@ -43,24 +46,40 @@ The policy above is invalid because `Action::"Invalid"` does not correspond to a
 To validate the policy, run:
 
 ```bash
-cf authz policyset validate
+find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
 ```
 
 You should see an output similar to below, showing that validation has failed:
 
 ```
-validating 1 policies
-example.cedar ... FAILED
+  × policy set validation failed
+  ╰─▶ for policy `policy4`, unrecognized action `Action::"Invalid"`
+    ╭─[40:15]
+ 39 │     principal,
+ 40 │     action == Action::"Invalid",
+    ·               ─────────────────
+ 41 │     resource
+    ╰────
+  help: did you mean `Access::Action::"Close"`?
 
-issues:
-
----- example.cedar ----
-
-	[ERROR] validation error on policy `policy0`: unrecognized action `Action::"Invalid"`
-
-	[ERROR] validation error on policy `policy0`: unable to find an applicable action given the policy head constraints
-
-	[ERROR] validation error on policy `policy0`: policy is impossible: the policy expression evaluates to false for all valid requests
+Error:   × for policy `policy4`, unable to find an applicable action given the policy scope constraints
+    ╭─[38:1]
+ 37 │
+ 38 │ ╭─▶ permit (
+ 39 │ │       principal,
+ 40 │ │       action == Action::"Invalid",
+ 41 │ │       resource
+ 42 │ ╰─▶ );
+    ╰────
+Warning:   ⚠ for policy `policy4`, policy is impossible: the policy expression evaluates to false for all valid requests
+    ╭─[38:1]
+ 37 │
+ 38 │ ╭─▶ permit (
+ 39 │ │       principal,
+ 40 │ │       action == Action::"Invalid",
+ 41 │ │       resource
+ 42 │ ╰─▶ );
+    ╰────
 ```
 
 Let's fix the policy. Replace the contents of `example.cedar` with:
@@ -76,14 +95,14 @@ permit (
 Now validate the policy again, by running:
 
 ```
-cf authz policyset validate
+find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
 ```
 
 You should see an output similar to the below, showing that validation has succeeded:
 
 ```
-validating 1 policies
-example.cedar ... ok
+  ☞ policy set validation passed
+  ╰─▶ no errors or warnings
 ```
 
 ## Retrieving the Cedar schema
@@ -162,29 +181,94 @@ permit (
 when { resource.target.tags.contains({key:"department", value:"engineering"}) };
 ```
 
-When validating this policy using `cf authz policyset validate`, you'll see an error similar to the below:
+When validating this policy using:
 
 ```
-validating 1 policies
-example.cedar ... FAILED
+find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
+```
 
-issues:
+You will see an error similar to the below:
 
----- example.cedar ----
+```
+  × policy set validation failed
+  ╰─▶ for policy `policy0`, attribute `tags` for entity type AWS::IDC::Group not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
 
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type DataStax::Organization not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type Test::Vault not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type AWS::IDC::Group not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type Okta::Group not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type Entra::Group not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type GCP::Project not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type GCP::Folder not found
+Error:   × for policy `policy0`, attribute `tags` for entity type Auth0::Organization not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::Project not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type Entra::Group not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type Okta::Group not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::Folder not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::BigQuery::Table not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::Organization not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type DataStax::Organization not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type Test::Vault not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::BigQuery::Dataset not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
 ```
 
 Cedar is complaining because the `Access::Action::"Activate"` action can be performed on Grants with different targets, such as AWS accounts, GCP projects, and Okta groups, but only AWS accounts have a `tags` attribute.
@@ -201,11 +285,11 @@ permit (
 when { resource.target.tags.contains({key:"department", value:"engineering"}) };
 ```
 
-After changing the policy, `cf authz policyset validate` runs successfully:
+After changing the policy, the cedar validation runs successfully:
 
 ```
-validating 1 policies
-example.cedar ... ok
+  ☞ policy set validation passed
+  ╰─▶ no errors or warnings
 ```
 
 The `AWS::IDC::AccountGrant` entity type represents [Grants](/setup/glossary#grant) to different target and role types. Here's a table with the various grant types:
@@ -237,29 +321,94 @@ permit (
 when { resource.target.tags.contains({key:"department", value:"engineering"}) };
 ```
 
-When validating this policy using `cf authz policyset validate`, you'll see an error similar to the below:
+When validating this policy using:
 
 ```
-validating 1 policies
-example.cedar ... FAILED
+find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
+```
 
-issues:
+You will see an error similar to the below:
 
----- example.cedar ----
+```
+  × policy set validation failed
+  ╰─▶ for policy `policy0`, attribute `tags` for entity type DataStax::Organization not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
 
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type DataStax::Organization not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type Test::Vault not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type AWS::IDC::Group not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type Okta::Group not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type Entra::Group not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type GCP::Project not found
-
-	[ERROR] validation error on policy `policy0` at offset 88-158: attribute `tags` for entity type GCP::Folder not found
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::Folder not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type Test::Vault not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type Entra::Group not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::Project not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::Organization not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::BigQuery::Table not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type GCP::BigQuery::Dataset not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type AWS::IDC::Group not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type Auth0::Organization not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
+Error:   × for policy `policy0`, attribute `tags` for entity type Okta::Group not found
+   ╭─[6:8]
+ 5 │ )
+ 6 │ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
+   ·        ──────────────────────────────────────────────────────────────────────
+   ╰────
+  help: did you mean `name`?
 ```
 
 Cedar is complaining because the `Access::Action::"Request"` action can be performed on Entitlements with different targets, such as AWS accounts, GCP projects, and Okta groups, but only AWS accounts have a `tags` attribute.
@@ -276,11 +425,11 @@ permit (
 when { resource.target.tags.contains({key:"department", value:"engineering"}) };
 ```
 
-After changing the policy, `cf authz policyset validate` runs successfully:
+After changing the policy, the cedar validation runs successfully:
 
 ```
-validating 1 policies
-example.cedar ... ok
+  ☞ policy set validation passed
+  ╰─▶ no errors or warnings
 ```
 
 The `AWS::IDC::AccountEntitlement` entity type represents [Entitlements](/setup/glossary#entitlement) to different target and role types. Here's a table with the various entitlement types:
