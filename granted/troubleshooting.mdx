@@ -84,12 +84,20 @@ Run the following steps to resolve the issue:
 
   Run the corresponding Granted command to reauthenticate.
 
-5. If you are still running into issues with assume and AWS SSO. We have a flag `--no-cache` which disables the persistence and lookup of cached tokens to force a fresh login and retrieving of a new access token. 
+5. If you are still running into issues with `assume` and AWS SSO, you can use the `--no-cache` or set the `GRANTED_NO_CACHE` environment variable to `true`, which forces a refresh of AWS session tokens.
+
 ```bash
 assume --no-cache
 
-// also configurable via environment variable
+# also configurable via the GRANTED_NO_CACHE environment variable
 export GRANTED_NO_CACHE=true
+```
+
+If you are using the [Granted Credential Process integration](/granted/recipes/credential-process), you can opt out of session token caching for a particular AWS command as follows:
+
+```bash
+# 'aws sts get-caller-identity' is an example AWS command
+GRANTED_NO_CACHE=true aws sts get-caller-identity --profile example-profile-using-granted-credential-process
 ```
 
 
