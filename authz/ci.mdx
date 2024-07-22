@@ -81,12 +81,8 @@ The Read-Only client has read access to the policy and configuration APIs but ca
     <CodeGroup>
     ```bash install-cedar-cli.sh
 
-    echo "Cloning Cedar repository..."
-    git clone https://github.com/cedar-policy/cedar.git
-    cd cedar
-
     echo "Building Cedar..."
-    cargo build --release
+    cargo install cedar-policy-cli
 
     ```
     </CodeGroup>
