@@ -9,7 +9,15 @@ Common Fate uses [authorization policy-as-code](/authz/introduction) powered by 
 
 If you're running a BYOC ("Bring-Your-Own-Cloud") deployment of Common Fate in your own AWS account, you'll need to be on `v1.31.0` or later of the `common-fate/common-fate-deployment/aws` Terraform module.
 
-You'll also need the [Cedar CLI installed](https://github.com/cedar-policy/cedar). To install it, run:
+You will need the [Common Fate `cf` CLI installed](/user-guide/cli/quickstart) - v1.12.0 or higher. You can check this by running `cf --version`. You should see an output similar to the below:
+
+```bash
+cf --version
+cf version v1.12.0
+# version must be v1.12.0 or higher for this guide.
+```
+
+You will also need the [Cedar CLI installed](https://github.com/cedar-policy/cedar). To install it, run:
 
 ```bash
 cargo install cedar-policy-cli
