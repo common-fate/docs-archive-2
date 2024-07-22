@@ -55,6 +55,12 @@ The policy above is invalid because `Action::"Invalid"` does not correspond to a
 To validate the policy, run:
 
 ```bash
+cedar validate --schema entities/common-fate.cedarschema.json --schema-format json --policies example.cedar
+```
+
+If you want to validate all `*.cedar` policies instead, run:
+
+```bash
 find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
 ```
 
@@ -103,7 +109,13 @@ permit (
 
 Now validate the policy again, by running:
 
+```bash
+cedar validate --schema entities/common-fate.cedarschema.json --schema-format json --policies example.cedar
 ```
+
+If you want to validate all `*.cedar` policies instead, run:
+
+```bash
 find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
 ```
 
@@ -192,7 +204,13 @@ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
 
 When validating this policy using:
 
+```bash
+cedar validate --schema entities/common-fate.cedarschema.json --schema-format json --policies example.cedar
 ```
+
+If you want to validate all `*.cedar` policies instead, run:
+
+```bash
 find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
 ```
 
@@ -332,7 +350,13 @@ when { resource.target.tags.contains({key:"department", value:"engineering"}) };
 
 When validating this policy using:
 
+```bash
+cedar validate --schema entities/common-fate.cedarschema.json --schema-format json --policies example.cedar
 ```
+
+If you want to validate all `*.cedar` policies instead, run:
+
+```bash
 find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
 ```
 

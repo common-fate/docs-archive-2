@@ -208,15 +208,12 @@ arzOaipAdOuTFwxC95aansKixfjvulqFbbJWRzx96Ipr3NoSP+g=
     export CF_CONFIG_SOURCES=env # tell the Common Fate CLI to only source config variables from the environment, rather than looking in ~/.cf/config
     ```
 
-    To install the cedar policy CLI,
+    To install the cedar policy CLI, copy the following script into your repository:
 
     ```bash install-cedar-cli.sh
-
     echo "Building Cedar..."
     cargo install cedar-policy-cli
-
     ```
-    </CodeGroup>
 
 You can then install the CLI in your CI workflow by running:
 
@@ -230,7 +227,7 @@ Then, you can run the validation command:
 cedar validate --schema entities/common-fate.cedarschema.json --schema-format json --policies default_policy_for_testing.cedar
 ```
 
-If you want to validate all `*.cedar` policies, run:
+If you want to validate all `*.cedar` policies instead, run:
 
 ```bash
 find . -type f -name '*.cedar' | xargs -n1 cedar validate --schema common-fate.cedarschema.json --schema-format json --policies
