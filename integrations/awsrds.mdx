@@ -3,95 +3,126 @@ title: "AWS RDS"
 description: "Setup guide for the Common Fate AWS RDS integration."
 ---
 
-Common Fate's [AWS RDS](https://aws.amazon.com/rds/) integration allows your end users to request Just-In-Time (JIT) access to RDS databases. Common Fate will provision an ephemeral EC2 instance used to proxy network access to the database. The proxy instance captures audit logs of all SQL commands executed by the user during their session. Users connect to the proxy instance using AWS SSM Session Manager.
+Common Fate's [AWS RDS](https://aws.amazon.com/rds/) integration allows your end users to request Just-In-Time (JIT) access to RDS databases, leveraging AWS SSM to connect via the Common Fate AWS Proxy service deployed to ECS in your account.
+The proxy service captures audit logs of all SQL commands executed by the user during their session which can be viewed in real-time.
 
-Using this integration mitigates the need to run long-lived proxy infrastructure for privileged access to RDS databases. Common Fate continuously scans for RDS resources across your AWS organization, so new databases can become available for access without requiring additional configuration.
+This guide will walk you through integrating Common Fate with AWS RDS. By the end of this guide, you'll have a functioning integration with Common Fate with Databases available for access.
 
-This guide will walk you through integrating Common Fate with AWS RDS. By the end of this guide, you'll have a functioning integration with Common Fate, allowing it to read RDS Instances and VPCs from selected accounts and regions and provision access to entitlements.
+## AWS RDS Overview
 
-## AWS RDS Setup
+When a user requests access to a database in Common Fate, the provisioner creates a Permission Set in IAM Identity Center with the name set to the grant ID. This Permission Set is assigned to the user and the Account containing the Proxy.
+The Permission Set grants the user access to connect to the proxy using SSM StartSession for the AWS-StartPortForwardingSession document only.
 
-The AWS RDS integration is deployed in conjunction with the AWS IDC integration. The AWS IDC integration will handle discovery of database instances and the provisioner will grant access to them by deploying an ephemeral ec2 bastion host.
+The user then uses the Granted CLI `granted rds proxy` to begin port-forwarding the database to their local machine.
 
-<Tabs>
-  <Tab title="Using Terraform">
+<img src="/images/rds/infra.png" />
 
-The following terraform will deploy the required IAM role for reading RDS instances and provisioning access, deploy this role into each account containing databases you wish to access
+## Audit Logging Queries
+
+The Common Fate RDS Proxy handles MySQL and Postgres connections at the wire protocol level. The proxy acts as a database server to the database client, and forwards commands to the target database after logging the queries to the session logs in Common Fate for the Grant.
+
+<img src="/images/rds/connection-flow.png" />
+
+## Deploying the Proxy
+
+The proxy module is deployed into the account containing the target RDS instances. You will need to configure the network ingress from the proxy to your databases.
+In the below example we have shown how you can add aws_security_group_rule resources to permit this access.
+
+To expose a database to Common Fate, you will configure each database and role using the databases configuration block. Some examples have been provided below for configuring a mysql and postgres database.
+The username field should match a user that exists in the database, you can consider creating a read only user in your database to limit the actions that can be taken while connected to the database.
 
 ```hcl
-  module "common-fate-aws-rds-roles" {
-    common_fate_aws_account_id = "<The AWS account id where Common Fate is deployed>"
-    organizational_unit_ids = "<The organization root ID or organizational unit (OU) IDs to which StackSets deploys the rds provisioning role into>"
-  }
+data "aws_partition" "current" {}
+data "aws_caller_identity" "current" {}
 
-  module "common-fate-aws-audit-roles" {
-    common_fate_aws_account_id = "<The AWS account id where Common Fate is deployed>"
-    organizational_unit_ids = "<The organization root ID or organizational unit (OU) IDs to which StackSets deploys the rds provisioning role into>"
-  }
+ module "proxy" {
+  source    = "common-fate/common-fate-proxy/ecs"
+  id = "<choose an id>"
+  aws_region                 = "us-west-2"
+  aws_account_id             = data.aws_caller_identity.current.account_id
+  common_fate_aws_account_id = "12345678912" // the account where Common Fate is deployed
+  aws_partition              = data.aws_partition.current.id
+  subnet_ids                 = [] // the proxy must be on a subnet with outbound internet access for AWS SSM to connect
+  vpc_id                     = "" // the VPC to deploy into
+  ecs_cluster_id             = "" // the ECS Cluster to deploy into
+  ecs_cluster_name           = "" // the ECS Cluster name
+  auth_issuer                = module.common-fate-deployment.outputs.auth_issuer // fetch this from your Common Fate deployment
+
+  proxy_service_client_id     = module.common-fate-deployment.outputs.provisioner_client_id // fetch this from your Common Fate deployment
+  proxy_service_client_secret = module.common-fate-deployment.provisioner_client_secret // fetch this from your Common Fate deployment
+
+  app_url = "https://commonfate.example.com" // Your Common Fate App url
+
+
+  databases = [{
+    instance_id = "example-mysql-db"
+    name        = "Demo MySQL Database"
+    endpoint    = aws_db_instance.mysql_db.endpoint
+    database    = aws_db_instance.mysql_db.db_name
+    engine      = aws_db_instance.mysql_db.engine
+    users = [{
+      name                      = "Root"
+      username                  = aws_db_instance.mysql_db.username
+      passwordSecretsManagerARN = aws_db_instance.mysql_db.master_user_secret[0].secret_arn
+    }]
+
+    },
+    {
+      instance_id = "example-postgres-db"
+      name        = "Demo Postgres Database"
+      endpoint    = "example-postgres-db.abcdef1234.us-west-2.rds.amazonaws.com:5432"
+      database    = "postgres"
+      engine      = "postgres"
+      users = [{
+        name                      = "Root"
+        username                  = "postgres"
+        passwordSecretsManagerARN = "arn:aws:secretsmanager:us-west-2:12345678912:secret:rds!db-1234-5678-9101112"
+        }, {
+        name                      = "Read Only"
+        username                  = "read_only"
+        passwordSecretsManagerARN = "arn:aws:secretsmanager:us-west-2:12345678912:secret:postgres-readonly-abcdefg"
+      }]
+
+  }]
+}
+
+
+// You will need to configure network access from the proxy to the database
+// this example shows how to add a security group rule permitting the proxy security group to access the database on the database port
+resource "aws_security_group_rule" "mysql_access_from_proxy" {
+  type                     = "ingress"
+  from_port                = 3306
+  to_port                  = 3306
+  protocol                 = "tcp"
+  security_group_id        = "sg-12345678912" // database security group id
+  source_security_group_id = module.proxy.security_group_id
+}
+
+resource "aws_security_group_rule" "postgres_access_from_proxy" {
+  type                     = "ingress"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  security_group_id        = "sg-12345678912" // database security group id
+  source_security_group_id = module.proxy.security_group_id
+  provider                 = aws.infra-region
+}
+
 ```
-
-  </Tab>
-
-</Tabs>
 
 ## Configuring Common Fate
 
-In this section, you will update your AWS IDC integration to enable the RDS feature. At the end of this section, you should have Common Fate reading AWS RDS resources and see them inside the web dashboard. You'll need to have [set up the Common Fate Application Configuration repository using our Terraform provider](/config/terraform).
+In this section, you will add selectors and availabilities so that users can request access to the databases. You'll need to have [set up the Common Fate Application Configuration repository using our Terraform provider](/config/terraform).
 
 Inside your Application Configuration repository, update the following module:
-
-```diff
-resource "commonfate_aws_idc_integration" "example" {
-  ... existing config
-+  audit_role_name = module.common-fate-aws-audit-roles.audit_role_name
-+  resource_regions = ["<each region to discover databases in"]
-}
-```
-
-Apply the changes. If the apply succeeds, you should see AWS RDS resources should populate within 10 minutes.
-
-If after 10 minutes you do not see resources appear, check the logs of the `common-fate-prod-control-plane` service in ECS. You can search for `aws_rds_sync` to filter for structured logs containing data about the AWS integration.
-
-## Provisioning access to AWS RDS instances
-
-To grant and revoke access to AWS, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-In default deployments, there is a provisioner builtin to the main stack which can be configured using blocks.
-
-To configure the builtin Provisioner for AWS RDS, add the `provisioner_aws_rds_config` config block as per the example below:
-
-<Warning>
-  By default, the provisioner will attempt to find a security group in the same
-  VPC as your database which already has access to the database. It will look
-  for a security group tagged with `should_provision_security_groups`=`true`.
-  You can alternatively allow the provisioner to create it's own security group
-  and attach it to the database as required by setting
-  `should_provision_security_groups` to true on the provisioner config.
-</Warning>
-
-```hcl
-module "common-fate-deployment" {
-  source = "common-fate/common-fate-deployment/aws"
-  version = "1.22.0"
-
-  aws_rds_config = {
-    idc_instance_arn                  = "<Your Identity Center Instance ARN>"
-    idc_region                        = "<Your Identity Center Region>"
-    idc_role_arn                      = "<ARN of the IDC Management IAM role>"
-    infra_role_name                   = module.common-fate-aws-rds-roles.rds_provisioning_role_name
-    should_provision_security_groups  = "<(Optional) whether or not to provision security groups for database access>"
-  }
-}
-```
-
-You'll additionally need to add the following Provisioner registration inside your Application Configuration repository:
 
 ```hcl
 resource "commonfate_webhook_provisioner" "aws" {
   url = "http://common-fate-prod-builtin-provisioner.common-fate-prod-builtin.internal:9999"
   capabilities = [
     {
-      target_type = "AWS::RDS::Instance"
-      role_type   = "CF::Database::Role"
+      target_type = "AWS::RDS::Database"
+      role_type   = "AWS::RDS::DatabaseUser"
       belonging_to = {
         type = "AWS::Organization"
         id   = "<Your AWS Organization ID>"
@@ -108,21 +139,27 @@ You can now create an access workflow and availabilities:
 resource "commonfate_access_workflow" "rds" {
   name                     = "RDS"
   access_duration_seconds  = 60
-  priority                 = 3
+  priority                 = 1
 }
 
-resource "commonfate_aws_rds_selector" "select_all" {
-  id                  = "select_all_aws_rds"
-  name                = "Select All Databases"
-  aws_organization_id = "<Your AWS Organization ID>"
-  when                = "true"
+resource "commonfate_aws_rds_database_availabilities" "mysql" {
+  workflow_id                  = commonfate_access_workflow.rds.id
+  aws_rds_database_selector_id = commonfate_aws_rds_database_selector.mysql.id
+  // you can find the user id in the Common Fate console on the resources page
+  aws_rds_database_user_id     = "test@arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
+  aws_identity_store_id        = local.identity_store_id
 }
-
-
-resource "commonfate_aws_rds_availabilities" "demo" {
-  workflow_id           = commonfate_access_workflow.rds.id
-  aws_rds_selector_id   = commonfate_aws_rds_selector.select_all.id
-  aws_identity_store_id = "<Your Identity Store ID>"
+resource "commonfate_aws_rds_database_availabilities" "postgres" {
+  workflow_id                  = commonfate_access_workflow.rds.id
+  aws_rds_database_selector_id = commonfate_aws_rds_database_selector.postgres.id
+  aws_rds_database_user_id     = "postgres@arn:aws:rds:us-west-2:12345678912:db:example-postgres-db/postgres"
+  aws_identity_store_id        = local.identity_store_id
+}
+resource "commonfate_aws_rds_database_availabilities" "postgres_read_only" {
+  workflow_id                  = commonfate_access_workflow.rds.id
+  aws_rds_database_selector_id = commonfate_aws_rds_database_selector.postgres.id
+  aws_rds_database_user_id     = "read_only@arn:aws:rds:us-west-2:12345678912:db:example-postgres-db/postgres"
+  aws_identity_store_id        = local.identity_store_id
 }
 
 
@@ -130,21 +167,42 @@ resource "commonfate_aws_rds_availabilities" "demo" {
 
 ## AWS RDS database selectors
 
-To make AWS RDS databases available for Just-In-Time (JIT) access you can add a `commonfate_aws_rds_selector` [Selector](/config/selectors) resource to your Common Fate application Terraform code. As shown below, the `when` clause in the resource is a [Cedar](https://cedarpolicy.com/) expression. You can use any [Cedar operator](https://docs.cedarpolicy.com/policies/syntax-operators.html) in the `when` clause, such as `&&` and `||` to combine conditions.
+To make AWS RDS databases available for Just-In-Time (JIT) access you can add a `commonfate_aws_rds_database_selector` [Selector](/config/selectors) resource to your Common Fate application Terraform code. As shown below, the `when` clause in the resource is a [Cedar](https://cedarpolicy.com/) expression. You can use any [Cedar operator](https://docs.cedarpolicy.com/policies/syntax-operators.html) in the `when` clause, such as `&&` and `||` to combine conditions.
 
-You'll need to use the `commonfate_aws_rds_selector` in conjunction with a `commonfate_aws_rds_availabilities` and `commonfate_access_workflow` resources, as shown above.
+You'll need to use the `commonfate_aws_rds_database_selector` in conjunction with a `commonfate_aws_rds_database_availabilities` and `commonfate_access_workflow` resources, as shown above.
 
 We've included some examples below.
+
+### Select a database by Engine
+
+```
+resource "commonfate_aws_rds_database_selector" "mysql" {
+  id                  = "mysql"
+  name                = "MySQL"
+  aws_organization_id = local.aws_organization_id
+  when                = <<EOT
+  resource.engine == "mysql"
+  EOT
+}
+resource "commonfate_aws_rds_database_selector" "postgres" {
+  id                  = "postgres"
+  name                = "Postgres"
+  aws_organization_id = local.aws_organization_id
+  when                = <<EOT
+  resource.engine == "postgres"
+  EOT
+}
+```
 
 ### Select a database by ID
 
 ```hcl
-resource "commonfate_aws_rds_selector" "example" {
-  id                  = "example"
-  name                = "Example"
-  aws_organization_id = "<Your AWS Organization ID>"
+resource "commonfate_aws_rds_database_selector" "mysql" {
+  id                  = "mysql"
+  name                = "MySQL"
+  aws_organization_id = local.aws_organization_id
   when                = <<EOT
-  resource == AWS::RDS::Database::"example-instance-identifier"
+  resource == AWS::RDS::Database::"example-mysql-db"
   EOT
 }
 ```
@@ -152,7 +210,7 @@ resource "commonfate_aws_rds_selector" "example" {
 ### Select multiple databases by ID
 
 ```hcl
-resource "commonfate_aws_rds_selector" "example" {
+resource "commonfate_aws_rds_database_selector" "example" {
   id                  = "example"
   name                = "Example"
   aws_organization_id = "<Your AWS Organization ID>"
@@ -164,15 +222,15 @@ resource "commonfate_aws_rds_selector" "example" {
 
 ### Select a database based on a naming pattern
 
-Select databases with a name ending in `-prod`:
+Select databases with an instance_id ending in `-prod`:
 
 ```hcl
-resource "commonfate_aws_rds_selector" "example" {
+resource "commonfate_aws_rds_database_selector" "example" {
   id                  = "example"
   name                = "Example"
   aws_organization_id = "<Your AWS Organization ID>"
   when                = <<EOT
-  resource.name like "*-prod"
+  resource.instance_id like "*-prod"
   EOT
 }
 ```
@@ -180,7 +238,7 @@ resource "commonfate_aws_rds_selector" "example" {
 Select databases with a name beginning with `Develop`:
 
 ```hcl
-resource "commonfate_aws_rds_selector" "example" {
+resource "commonfate_aws_rds_database_selector" "example" {
   id                  = "example"
   name                = "Example"
   aws_organization_id = "<Your AWS Organization ID>"
@@ -193,7 +251,7 @@ resource "commonfate_aws_rds_selector" "example" {
 ### Select databases belonging to a particular Organizational Unit (OU)
 
 ```hcl
-resource "commonfate_aws_rds_selector" "example" {
+resource "commonfate_aws_rds_database_selector" "example" {
   id                  = "example"
   name                = "Example"
   aws_organization_id = "<Your AWS Organization ID>"
@@ -203,32 +261,40 @@ resource "commonfate_aws_rds_selector" "example" {
 }
 ```
 
-### Select an account containing a tag key
+## Connecting to a Database
 
-Selects AWS databases which have a tag with a key of `production`:
+Users connect to a database using Granted CLI.
 
-```hcl
-resource "commonfate_aws_rds_selector" "example" {
-  id                  = "example"
-  name                = "Example"
-  aws_organization_id = "<Your AWS Organization ID>"
-  when                = <<EOT
-  resource.tag_keys.contains("production")
-  EOT
-}
+### Select a database
+
+<Note>
+  Some database requests may require approval, you can use the `--wait` flag and
+  the CLI will wait for your request to be approved, then start the proxy.
+</Note>
+
+```
+❯ granted rds proxy
+  Select a database to connect to
+    Database                                Role
+  > Demo MySQL Database                     Root
+    Demo Postgres Database                  Read Only
+    Demo Postgres Database                  Root
+
 ```
 
-### Select an account containing a tag key and value
+### Connect your database client
 
-Selects AWS databases which have a tag with key `department` and value `engineering` (`department=engineering`):
+The CLI will provide the connection information, these are stable between grants for the same database and role.
 
-```hcl
-resource "commonfate_aws_rds_selector" "example" {
-  id                  = "example"
-  name                = "Example"
-  aws_organization_id = "<Your AWS Organization ID>"
-  when                = <<EOT
-  resource.tags.contains({key: "department", value: "engineering"})
-  EOT
-}
+<Note>
+  If you need to run the portforward on an different port, use the flag
+  `--port=1234`
+</Note>
+
+```
+[i] Database proxy ready for connections on 127.0.0.1:5432
+
+[i] You can connect now using this connection string: postgresql://read_only:password@127.0.0.1:5432/postgres?sslmode=disable
+
+[i] Or using the postgres cli: psql "postgresql://read_only:password@127.0.0.1:5432/postgres?sslmode=disable"
 ```
