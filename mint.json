@@ -101,6 +101,10 @@
             "granted/internals/different-assumers",
             "granted/internals/shell-alias"
           ]
+        },
+        {
+          "group": "Plugins",
+          "pages": ["granted/plugins/aws-rds"]
         }
       ]
     },
