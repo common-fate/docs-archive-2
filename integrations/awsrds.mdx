@@ -36,7 +36,7 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
  module "proxy" {
-  source    = "git::https://github.com/common-fate/terraform-aws-common-fate-proxy-ecs.git?ref=b0b65fd1eafb7672d5ceceb8b6fb55a46814c7fd"
+  source    = "common-fate/common-fate-proxy/ecs"
 
   aws_region                 = "us-west-2"
   aws_account_id             = data.aws_caller_identity.current.account_id
