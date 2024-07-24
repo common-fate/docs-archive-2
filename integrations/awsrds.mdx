@@ -4,7 +4,7 @@ description: "Setup guide for the Common Fate AWS RDS integration."
 ---
 
 Common Fate's [AWS RDS](https://aws.amazon.com/rds/) integration allows your end users to request Just-In-Time (JIT) access to RDS databases, leveraging AWS SSM to connect via the Common Fate AWS Proxy service deployed to ECS in your account.
-The proxy service captures audit logs of all SQL commands executed by the user during their session which can bew viewed in real-time.
+The proxy service captures audit logs of all SQL commands executed by the user during their session which can be viewed in real-time.
 
 This guide will walk you through integrating Common Fate with AWS RDS. By the end of this guide, you'll have a functioning integration with Common Fate with Databases available for access.
 
@@ -13,7 +13,7 @@ This guide will walk you through integrating Common Fate with AWS RDS. By the en
 When a user requests access to a database in Common Fate, the provisioner creates a Permission Set in IAM Identity Center with the name set to the grant ID. This Permission Set is assigned to the user and the Account containing the Proxy.
 The Permission Set grants the user access to connect to the proxy using SSM StartSession for the AWS-StartPortForwardingSession document only.
 
-The user then uses the Granted CLI `granted rds proxy` to begin portforwarding the database to their local machine.
+The user then uses the Granted CLI `granted rds proxy` to begin port-forwarding the database to their local machine.
 
 <img src="/images/rds/infra.png" />
 
@@ -25,10 +25,10 @@ The Common Fate RDS Proxy handles MySQL and Postgres connections at the wire pro
 
 ## Deploying the Proxy
 
-The proxy module is deployed into the account containing the target RDS instances, you will need to configure the network ingress from the proxy to your databases.
+The proxy module is deployed into the account containing the target RDS instances. You will need to configure the network ingress from the proxy to your databases.
 In the below example we have shown how you can add aws_security_group_rule resources to permit this access.
 
-To expose a database to Common Fate, you will configure each database an role using the databases configuration block. Some examples have been provided below for configuring an mysql and postgres database.
+To expose a database to Common Fate, you will configure each database and role using the databases configuration block. Some examples have been provided below for configuring a mysql and postgres database.
 The username field should match a user that exists in the database, you can consider creating a read only user in your database to limit the actions that can be taken while connected to the database.
 
 ```hcl
