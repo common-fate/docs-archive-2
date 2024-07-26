@@ -32,7 +32,7 @@ To set up PagerDuty in your Common Fate deployment you will need to register an 
 
 A modal will pop up with some client credentials. We need to save the **Client ID** and **Client Secret** to **AWS SSM Parameter Store** for it to be used in the Common Fate deployment.
 
-You can use the AWS CLI to create a secret in the region you are deploying to, we recommend naming these `"/<namespace>/<stage>/<secret name>"`
+You can use the AWS CLI to create a secret in the region you are deploying to, you must use the following path `"/<namespace>/<stage>/<secret name>"`
 
 ```bash
 aws ssm put-parameter \
