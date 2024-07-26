@@ -85,7 +85,7 @@ To configure your deployment to use Slack notifications, you first need to creat
 7. Select **Create**
 8. You will now need to save the client secret and client signing secret to SSM Parameter Store.
 
-   You can use the AWS CLI to create a secret in the region you are deploying to, we recommend naming these `"/<namespace>/<stage>/<secret name>"`
+   You can use the AWS CLI to create a secret in the region you are deploying to, you must use the following path `"/<namespace>/<stage>/<secret name>"`
 
    ```bash
    aws ssm put-parameter \
@@ -151,8 +151,8 @@ resource "commonfate_slack_alert" "example" {
 }
 ```
 
-- The `commonfate_slack_alert` resource can be configured to send messages to a specified channel using the `slack_channel_id` field. 
-- Alternatively you can configure it to send direct messages to all the approvers of the request with the `send_direct_message_to_approvers` field. 
+- The `commonfate_slack_alert` resource can be configured to send messages to a specified channel using the `slack_channel_id` field.
+- Alternatively you can configure it to send direct messages to all the approvers of the request with the `send_direct_message_to_approvers` field.
 
 Here is a simple default workflow that will send notifications for approvals to the the approvers of the request.
 ```hcl

@@ -19,7 +19,7 @@ To set up OpsGenie in your Common Fate deployment you will need to create an API
 
 4. Copy the Access Key value.
 
-You can use the AWS CLI to create a secret in the region you are deploying to, we recommend naming these `"/<namespace>/<stage>/<secret name>"`
+You can use the AWS CLI to create a secret in the region you are deploying to, you must use the following path `"/<namespace>/<stage>/<secret name>"`
 
 ```bash
 aws ssm put-parameter \
