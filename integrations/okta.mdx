@@ -20,7 +20,7 @@ To create the API Token:
 
 You will need to create a new `SecretString` in SSM Parameter Store and then use the path when configuring your deployment in Terraform.
 
-You can use the AWS CLI to create a secret in the region you are deploying to. We recommend naming these `"/<namespace>/<stage>/<secret name>"`.
+You can use the AWS CLI to create a secret in the region you are deploying to. you must use the following path `"/<namespace>/<stage>/<secret name>"`.
 
 ```bash
 aws ssm put-parameter \

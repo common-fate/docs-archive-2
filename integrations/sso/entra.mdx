@@ -43,7 +43,7 @@ You will now be on the application overview page.
 
 1. To configure SCIM you will need to create a secret token for API authentication, use a strong token generator to generate a secret, then save it to SSM Parameter Store.
 
-   You can use the AWS CLI to create a secret in the region you are deploying to, we recommend naming these `"/<namespace>/<stage>/<secret name>"`
+   You can use the AWS CLI to create a secret in the region you are deploying to, you must use the following path `"/<namespace>/<stage>/<secret name>"`
 
    ```bash
    aws ssm put-parameter \
