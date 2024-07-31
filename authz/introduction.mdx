@@ -277,3 +277,115 @@ resource "commonfate_policyset" "oncall" {
 ```
 
 After applying the changes to Terraform, you should see CF::PolicySet appear in your Resources tab in the web UI.
+
+## Writing Cedar Policies in Terraform
+
+Common Fate maintains a Cedar Terraform Provider [Cedar Terraform Provider](https://registry.terraform.io/providers/common-fate/cedar/latest/docs) to make authoring Cedar policies easier in Terraform. The provider allows you to write authorization policies using [HCL](https://developer.hashicorp.com/terraform/language/syntax/configuration), Terraform's configuration syntax.
+
+To use the provider, add it to your `required_providers` in Terraform:
+
+```hcl
+terraform {
+  required_providers {
+    cedar = {
+      source = "common-fate/cedar"
+    }
+  }
+}
+```
+
+Here's a simple example:
+
+```hcl
+data "cedar_policyset" "example" {
+  policy {
+    effect = "permit"
+
+    annotation {
+      name = "advice"
+      value = "You can request access because you are in the Engineering team."
+    }
+
+    principal_in = {
+      type = "AWS::IDC::Group"
+      id   = "12345-12345-12345"
+    }
+    action = {
+      type = "Access::Action"
+      id   = "Request"
+    }
+    any_resource = true
+
+    when {
+      text = "resource.target in AWS::OrgUnit::\"ou-123\""
+    }
+  }
+}
+
+resource "commonfate_policyset" "example" {
+    id = "example"
+    text = data.cedar_policyset.example.text
+}
+```
+
+The `cedar_policyset` resource renders a Cedar policy, available as `data.cedar_policyset.example.text`. Here's what the resulting policy looks like:
+
+```
+@advice("You can request access because you are in the Engineering team.")
+permit (
+  principal in [AWS::IDC::Group::"12345-12345-12345"],
+  action == Access::Action::"Request",
+  resource
+)
+when {
+  resource.target in AWS::OrgUnit::"ou-123"
+};
+```
+
+The provider allows you to use Terraform variables in your policies. For example, we can configure an on-call rotation in PagerDuty, as well as authorization policies for access workflows in one place:
+
+```hcl
+resource "pagerduty_schedule" "example" {
+  name      = "Daily Engineering Rotation"
+  time_zone = "America/New_York"
+
+  layer {
+    name                         = "Night Shift"
+    start                        = "2015-11-06T20:00:00-05:00"
+    rotation_virtual_start       = "2015-11-06T20:00:00-05:00"
+    rotation_turn_length_seconds = 86400
+    users                        = [pagerduty_user.example.id]
+
+    restriction {
+      type              = "daily_restriction"
+      start_time_of_day = "08:00:00"
+      duration_seconds  = 32400
+    }
+  }
+
+  teams = [pagerduty_team.example.id]
+}
+
+data "cedar_policyset" "example" {
+  policy {
+    effect = "permit"
+
+    annotation {
+      name = "advice"
+      value = "Access is automatically approved because you are on-call in the ${pagerduty_schedule.example.name} rotation."
+    }
+
+    principal_in = {
+      type = "PagerDuty::OnCall"
+      id   = pagerduty_schedule.example.id
+    }
+    action = {
+      type = "Access::Action"
+      id   = "Activate"
+    }
+    any_resource = true
+  }
+}
+```
+
+You can [learn more about the provider here](https://registry.terraform.io/providers/common-fate/cedar/latest/docs).
