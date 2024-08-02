@@ -153,7 +153,46 @@ resource "commonfate_availability_spec" "aws_resources" {
 
 Common Fate provides 4 built-in role for use when accessing AWS Resources.
 
-- MetadataViewer
-- Reader
-- Editor
-- Owner
+- Access::Role::"MetadataViewer"
+- Access::Role::"Reader"
+- Access::Role::"Editor"
+- Access::Role::"Owner"
+
+When a user requests access to resources within the same AWS Account, a single PermissionSet is created or updated with the required IAM policies to grant access to all their requested resources.
+Users can access this role via the Common Fate web console by visiting their request. The web console also has instructions to access the role via Granted CLI.
+
+# Cedar policies
+
+### Request access to S3 Buckets in a specific OU and auto approve access when the role is Access::Role::"Reader"
+
+```
+permit (
+    principal,
+    action == Access::Action::"Request",
+    resource is AWS::ResourceEntitlement
+)
+when
+{
+// S3 buckets in the ou-123 org unit
+resource.type == "AWS::S3::Bucket" &&
+resource in AWS::OrgUnit::"ou-123" &&
+    // Read-only role
+    resource.role == Access::Role::"Reader"
+};
+
+@advice("read only resource access is automatically approved")
+permit (
+    principal,
+    action == Access::Action::"Activate",
+    resource is AWS::ResourceGrant
+)
+when
+{
+// S3 buckets in the ou-123 org unit
+resource.type == "AWS::S3::Bucket" &&
+resource in AWS::OrgUnit::"ou-123" &&
+    // Read-only role
+    resource.role == Access::Role::"Reader"
+};
+
+```
