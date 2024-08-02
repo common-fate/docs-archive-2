@@ -63,6 +63,10 @@ resource "commonfate_entra_integration" "entra" {
 
 Apply the changes. If the apply succeeds, you should see the integration appear on the settings page in the web dashboard.
 
+<Note>
+  Dynamic Groups in Entra are not fully supported by Common Fate. You may see these groups appear in the Directory in Common Fate however they may not show the Correct members as seen in the Entra Console and should not be relied on when authoring Access Policies.
+</Note>
+
 ## Provisioning access to Entra Groups
 
 To grant and revoke access to Entra Groups, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
