@@ -208,7 +208,9 @@ module "common_fate_aws_roles" {
 
 7. Configure the trust policy of the provision role to allow the provisioner task role to assume it.
 
-  </Tab>
+8. For the read role add a tag with key `common-fate-aws-integration-read-role` and value `true` and for the provision role add a tag with key `common-fate-aws-integration-provision-role`and value `true`.
+
+</Tab>
 
 </Tabs>
 

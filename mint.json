@@ -160,6 +160,7 @@
       "pages": [
         "integrations/aws",
         "integrations/awsrds",
+        "integrations/aws-resources",
         "integrations/auth0",
         "integrations/bigquery",
         "integrations/datastax",
