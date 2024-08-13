@@ -10,6 +10,24 @@ The proxy service captures audit logs of all SQL commands executed by the user d
 
 This guide will walk you through integrating Common Fate with AWS RDS. By the end of this guide, you'll have a functioning integration with Common Fate with Databases available for access.
 
+## Prerequisites
+
+You'll need to have [set up the Common Fate AWS integration](/integrations/aws) before adding AWS RDS.
+
+The AWS RDS integration creates temporary Permission Sets in IAM Identity Center allowing users to connect over AWS SSM Session Manager. In order to provision these Permission Sets, the Common Fate AWS integration IAM roles need some additional permissions.
+
+To add these permissions using our Terraform module, ensure that the `permit_provision_permission_sets` variable is set to `true` in the Terraform module:
+
+```diff
+module "common-fate-aws-roles" {
+  source                                = "common-fate/common-fate-deployment/aws//modules/aws-idc-integration/iam-roles"
+  version                               = "2.0.0"
+  common_fate_aws_account_id            = "123456789012"
+  assume_role_external_id               = "your-external-id"
++ permit_provision_permission_sets      = true
+}
+```
+
 ## AWS RDS Overview
 
 When a user requests access to a database in Common Fate, the provisioner creates a Permission Set in IAM Identity Center with the name set to the grant ID. This Permission Set is assigned to the user and the Account containing the Proxy.
