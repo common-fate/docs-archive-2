@@ -12,7 +12,7 @@ This guide will walk you through integrating Common Fate with AWS RDS. By the en
 
 ## Prerequisites
 
-You'll need to have [set up the Common Fate AWS integration](/integrations/aws) before adding AWS RDS.
+You'll need to have [set up the Common Fate AWS integration](/integrations/aws) before adding AWS RDS. You'll also need to be using the [Common Fate Terraform Provider](https://registry.terraform.io/providers/common-fate/commonfate/latest) v2.22+.
 
 The AWS RDS integration creates temporary Permission Sets in IAM Identity Center allowing users to connect over AWS SSM Session Manager. In order to provision these Permission Sets, the Common Fate AWS integration IAM roles need some additional permissions.
 
