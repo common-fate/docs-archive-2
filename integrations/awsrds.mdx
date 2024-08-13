@@ -112,6 +112,15 @@ resource "aws_security_group_rule" "postgres_access_from_proxy" {
 
 ```
 
+The AWS Secrets Manager secret value referenced by `passwordSecretsManagerARN` **must** be a key/value pair containing a `password` key. For example, the following secret in JSON format is valid:
+
+```json
+{"username":"postgres","password":"postgrespassword"}
+```
+
+Secrets created by AWS RDS follow this format.
+
+
 ## Configuring Common Fate
 
 In this section, you will add selectors and availabilities so that users can request access to the databases. You'll need to have [set up the Common Fate Application Configuration repository using our Terraform provider](/config/terraform).
