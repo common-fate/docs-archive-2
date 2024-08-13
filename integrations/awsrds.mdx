@@ -38,7 +38,7 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
  module "proxy" {
-  source    = "common-fate/common-fate-proxy/ecs"
+  source    =  "common-fate/common-fate-proxy-ecs/aws"
   id = "<choose an id>"
   aws_region                 = "us-west-2"
   aws_account_id             = data.aws_caller_identity.current.account_id
