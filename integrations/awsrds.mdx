@@ -133,11 +133,10 @@ resource "aws_security_group_rule" "postgres_access_from_proxy" {
 The AWS Secrets Manager secret value referenced by `passwordSecretsManagerARN` **must** be a key/value pair containing a `password` key. For example, the following secret in JSON format is valid:
 
 ```json
-{"username":"postgres","password":"postgrespassword"}
+{ "username": "postgres", "password": "postgrespassword" }
 ```
 
 Secrets created by AWS RDS follow this format.
-
 
 ## Configuring Common Fate
 
@@ -161,7 +160,7 @@ resource "commonfate_webhook_provisioner" "aws" {
 }
 ```
 
-You can now create an access workflow and availabilities:
+You can now create an access workflow and availabilities, these resources make a single database and role available for requesting:
 
 ```hcl
 
@@ -171,122 +170,25 @@ resource "commonfate_access_workflow" "rds" {
   priority                 = 1
 }
 
-resource "commonfate_aws_rds_database_availabilities" "mysql" {
+resource "commonfate_aws_rds_database_availability" "mysql" {
   workflow_id                  = commonfate_access_workflow.rds.id
-  aws_rds_database_selector_id = commonfate_aws_rds_database_selector.mysql.id
-  // you can find the user id in the Common Fate console on the resources page
+  // you can find the database id in the Common Fate console on the resources page
+  aws_rds_database_id          = "arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
+  // you can find the user id in the Common Fate console on the resources page or in the children tab of the database resource
   aws_rds_database_user_id     = "test@arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
   aws_identity_store_id        = local.identity_store_id
 }
-resource "commonfate_aws_rds_database_availabilities" "postgres" {
+resource "commonfate_aws_rds_database_availability" "postgres" {
   workflow_id                  = commonfate_access_workflow.rds.id
-  aws_rds_database_selector_id = commonfate_aws_rds_database_selector.postgres.id
+  aws_rds_database_id          = "arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
   aws_rds_database_user_id     = "postgres@arn:aws:rds:us-west-2:12345678912:db:example-postgres-db/postgres"
   aws_identity_store_id        = local.identity_store_id
 }
-resource "commonfate_aws_rds_database_availabilities" "postgres_read_only" {
+resource "commonfate_aws_rds_database_availability" "postgres_read_only" {
   workflow_id                  = commonfate_access_workflow.rds.id
-  aws_rds_database_selector_id = commonfate_aws_rds_database_selector.postgres.id
+  aws_rds_database_id          = "arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
   aws_rds_database_user_id     = "read_only@arn:aws:rds:us-west-2:12345678912:db:example-postgres-db/postgres"
   aws_identity_store_id        = local.identity_store_id
-}
-
-
-```
-
-## AWS RDS database selectors
-
-To make AWS RDS databases available for Just-In-Time (JIT) access you can add a `commonfate_aws_rds_database_selector` [Selector](/config/selectors) resource to your Common Fate application Terraform code. As shown below, the `when` clause in the resource is a [Cedar](https://cedarpolicy.com/) expression. You can use any [Cedar operator](https://docs.cedarpolicy.com/policies/syntax-operators.html) in the `when` clause, such as `&&` and `||` to combine conditions.
-
-You'll need to use the `commonfate_aws_rds_database_selector` in conjunction with a `commonfate_aws_rds_database_availabilities` and `commonfate_access_workflow` resources, as shown above.
-
-We've included some examples below.
-
-### Select a database by Engine
-
-```
-resource "commonfate_aws_rds_database_selector" "mysql" {
-  id                  = "mysql"
-  name                = "MySQL"
-  aws_organization_id = local.aws_organization_id
-  when                = <<EOT
-  resource.engine == "mysql"
-  EOT
-}
-resource "commonfate_aws_rds_database_selector" "postgres" {
-  id                  = "postgres"
-  name                = "Postgres"
-  aws_organization_id = local.aws_organization_id
-  when                = <<EOT
-  resource.engine == "postgres"
-  EOT
-}
-```
-
-### Select a database by ID
-
-```hcl
-resource "commonfate_aws_rds_database_selector" "mysql" {
-  id                  = "mysql"
-  name                = "MySQL"
-  aws_organization_id = local.aws_organization_id
-  when                = <<EOT
-  resource == AWS::RDS::Database::"example-mysql-db"
-  EOT
-}
-```
-
-### Select multiple databases by ID
-
-```hcl
-resource "commonfate_aws_rds_database_selector" "example" {
-  id                  = "example"
-  name                = "Example"
-  aws_organization_id = "<Your AWS Organization ID>"
-  when                = <<EOT
-  resource == AWS::RDS::Database::"example-instance-identifier" ||  AWS::RDS::Database::"another-example-instance-identifier"
-  EOT
-}
-```
-
-### Select a database based on a naming pattern
-
-Select databases with an instance_id ending in `-prod`:
-
-```hcl
-resource "commonfate_aws_rds_database_selector" "example" {
-  id                  = "example"
-  name                = "Example"
-  aws_organization_id = "<Your AWS Organization ID>"
-  when                = <<EOT
-  resource.instance_id like "*-prod"
-  EOT
-}
-```
-
-Select databases with a name beginning with `Develop`:
-
-```hcl
-resource "commonfate_aws_rds_database_selector" "example" {
-  id                  = "example"
-  name                = "Example"
-  aws_organization_id = "<Your AWS Organization ID>"
-  when                = <<EOT
-  resource.name like "Develop*"
-  EOT
-}
-```
-
-### Select databases belonging to a particular Organizational Unit (OU)
-
-```hcl
-resource "commonfate_aws_rds_database_selector" "example" {
-  id                  = "example"
-  name                = "Example"
-  aws_organization_id = "<Your AWS Organization ID>"
-  when                = <<EOT
-  resource in AWS::OrgUnit::"ou-123abc"
-  EOT
 }
 ```
 
@@ -302,10 +204,13 @@ Users connect to a database using Granted CLI.
 </Note>
 
 ```
+
 ❯ granted rds proxy
-  Select a database to connect to
-    Database                                Role
-  > Demo MySQL Database                     Root
+Select a database to connect to
+Database Role
+
+> Demo MySQL Database Root
+
     Demo Postgres Database                  Read Only
     Demo Postgres Database                  Root
 
@@ -321,9 +226,15 @@ The CLI will provide the connection information, these are stable between grants
 </Note>
 
 ```
+
 [i] Database proxy ready for connections on 127.0.0.1:5432
 
 [i] You can connect now using this connection string: postgresql://read_only:password@127.0.0.1:5432/postgres?sslmode=disable
 
 [i] Or using the postgres cli: psql "postgresql://read_only:password@127.0.0.1:5432/postgres?sslmode=disable"
+
 ```
+
+## Updating the Proxy
+
+When you update your Proxy deployment in ECS, a container restart may be required. In this case, all active connections to the database will be terminated.
