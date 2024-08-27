@@ -48,8 +48,9 @@ The Common Fate RDS Proxy handles MySQL and Postgres connections at the wire pro
 The proxy module is deployed into the account containing the target RDS instances. You will need to configure the network ingress from the proxy to your databases.
 In the below example we have shown how you can add aws_security_group_rule resources to permit this access.
 
-To expose a database to Common Fate, you will configure each database and role using the databases configuration block. Some examples have been provided below for configuring a mysql and postgres database.
+To expose a database to Common Fate, you will need to register them with our `proxy-resource-aws-rds` Terraform module. Some examples have been provided below for configuring a mysql and postgres database.
 The username field should match a user that exists in the database, you can consider creating a read only user in your database to limit the actions that can be taken while connected to the database.
+
 
 ```hcl
 data "aws_partition" "current" {}
@@ -74,61 +75,41 @@ data "aws_caller_identity" "current" {}
   app_url = "https://commonfate.example.com" // Your Common Fate App url
 
 
-  databases = [{
-    instance_id = "example-mysql-db"
-    name        = "Demo MySQL Database"
-    endpoint    = aws_db_instance.mysql_db.endpoint
-    database    = aws_db_instance.mysql_db.db_name
-    engine      = aws_db_instance.mysql_db.engine
-    users = [{
-      name                      = "Root"
-      username                  = aws_db_instance.mysql_db.username
-      passwordSecretsManagerARN = aws_db_instance.mysql_db.master_user_secret[0].secret_arn
-    }]
 
-    },
-    {
-      instance_id = "example-postgres-db"
-      name        = "Demo Postgres Database"
-      endpoint    = "example-postgres-db.abcdef1234.us-west-2.rds.amazonaws.com:5432"
-      database    = "postgres"
-      engine      = "postgres"
-      users = [{
-        name                      = "Root"
-        username                  = "postgres"
-        passwordSecretsManagerARN = "arn:aws:secretsmanager:us-west-2:12345678912:secret:rds!db-1234-5678-9101112"
-        }, {
-        name                      = "Read Only"
-        username                  = "read_only"
-        passwordSecretsManagerARN = "arn:aws:secretsmanager:us-west-2:12345678912:secret:postgres-readonly-abcdefg"
-      }]
+}
 
+
+module "proxy-resource-aws-rds-sql" {
+  source  = "common-fate/proxy-resource-aws-rds/commonfate"
+  proxy_id=module.proxy.proxy_id
+  app_url = "https://commonfate.example.com" // Your Common Fate App url
+  rds_name="us-west-2-prod" //used to lookup the rds database with the AWS datasource
+  rds_security_group_id="sg-12345678912" // database security group id
+  users = [{
+     name                      = "Root"
+     username                  = aws_db_instance.mysql_db.username
+     passwordSecretsManagerARN = aws_db_instance.mysql_db.master_user_secret[0].secret_arn
   }]
-}
 
+ }
 
-// You will need to configure network access from the proxy to the database
-// this example shows how to add a security group rule permitting the proxy security group to access the database on the database port
-resource "aws_security_group_rule" "mysql_access_from_proxy" {
-  type                     = "ingress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  security_group_id        = "sg-12345678912" // database security group id
-  source_security_group_id = module.proxy.security_group_id
-}
+module "proxy-resource-aws-rds-postgres" {
+  source  = "common-fate/proxy-resource-aws-rds/commonfate"
+  proxy_id=module.proxy.proxy_id
+  app_url = "https://commonfate.example.com" // Your Common Fate App url
+  rds_name="us-west-2-prod" //used to lookup the rds database with the AWS datasource
+  rds_security_group_id="sg-12345678912" // database security group id
+  users = [{
+     name                      = "Root"
+     username                  = aws_db_instance.postgres_db.username
+     passwordSecretsManagerARN = aws_db_instance.postgres_db.master_user_secret[0].secret_arn
+  }]
 
-resource "aws_security_group_rule" "postgres_access_from_proxy" {
-  type                     = "ingress"
-  from_port                = 5432
-  to_port                  = 5432
-  protocol                 = "tcp"
-  security_group_id        = "sg-12345678912" // database security group id
-  source_security_group_id = module.proxy.security_group_id
-  provider                 = aws.infra-region
-}
+ }
 
 ```
+
+The `proxy-resource-aws-rds` module will create the necisary IAM policies to allow the proxy service to read the SSM secrets, create the security group rule allowing the proxy to access the database, and registering the database with Common Fate so it knows of its existence.
 
 The AWS Secrets Manager secret value referenced by `passwordSecretsManagerARN` **must** be a key/value pair containing a `password` key. For example, the following secret in JSON format is valid:
 
