@@ -97,7 +97,7 @@ module "proxy-resource-aws-rds-postgres" {
   source  = "common-fate/proxy-resource-aws-rds/commonfate"
   proxy_id=module.proxy.proxy_id
   app_url = "https://commonfate.example.com" // Your Common Fate App url
-  rds_name="us-west-2-prod" //used to lookup the rds database with the AWS datasource
+  rds_instance_identifier="us-west-2-prod" //used to lookup the rds database with the AWS datasource
   rds_security_group_id="sg-12345678912" // database security group id
   users = [{
      name                      = "Root"
