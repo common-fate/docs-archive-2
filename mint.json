@@ -132,6 +132,7 @@
       "pages": [
         "authz/introduction",
         "authz/validation",
+        "authz/testing",
         "authz/vscode",
         "authz/ci",
         "authz/breakglass"
