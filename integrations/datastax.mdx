@@ -70,43 +70,6 @@ Apply the changes. If the apply succeeds, you should see the integration appear 
 
 ## Provisioning access to DataStax Roles
 
-To grant and revoke access to DataStax Roles, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-In default deployments, there is a provisioner builtin to the main stack which can be configured using blocks.
-
-To configure the builtin Provisioner for DataStax Roles, add the `provisioner_datastax_config` config block as per the example below:
-
-```hcl
-module "common-fate-deployment" {
-  source = "common-fate/common-fate-deployment/aws"
-  version = "1.22.0"
-
-  provisioner_datastax_config = {
-    organization_id           = "<Your DataStax Organization ID>"
-    api_key_secret_path       = "/common-fate/prod/datastax-api-key"
-  }
-}
-```
-
-To obtain your DataStax Organization ID, navigate to Settings. Your DataStax Organization ID will be in the URL, for example: https://astra.datastax.com/org/ffaab174-bfd8-4bcc-860d-6c760df53bc9/settings/tokens. `ffaab174-bfd8-4bcc-860d-6c760df53bc9` would be your DataStax Organization ID.
-
-You'll additionally need to add the following Provisioner registration inside your Application Configuration repository:
-
-```hcl
-resource "commonfate_webhook_provisioner" "prod" {
- url = "http://common-fate-prod-builtin-provisioner.common-fate-prod-builtin.internal:9999"
-  capabilities = [
-    {
-      target_type = "DataStax::Organization"
-      role_type   = "DataStax::Role"
-      belonging_to = {
-        type = "DataStax::Organization"
-        id   = "<Your DataStax Organization ID>"
-      }
-    },
-  ]
-}
-```
-
 You can now create an access workflow and availabilities:
 
 ```hcl
