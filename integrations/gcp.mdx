@@ -169,36 +169,6 @@ If after 10 minutes you do not see resources appear, check the logs of the `comm
 
 ## Provisioning access to GCP
 
-To grant and revoke access to GCP, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-
-Add the following Provisioner registration inside your Application Configuration repository:
-
-```hcl
-resource "commonfate_webhook_provisioner" "prod" {
- url = "http://common-fate-prod-builtin-provisioner.common-fate-prod-builtin.internal:9999"
-  capabilities = [
-    {
-      target_type = "GCP::Project"
-      role_type   = "GCP::Role"
-      belonging_to = {
-        type = "GCP::Organization"
-        id   = "organizations/123456789123"
-      }
-    },
-    {
-      target_type = "GCP::Folder"
-      role_type   = "GCP::Role"
-      belonging_to = {
-        type = "GCP::Organization"
-        id   = "organizations/123456789123"
-      }
-    },
-  ]
-}
-```
-
-## GCP project selectors
-
 To make GCP projects available for Just-In-Time (JIT) access you can add a `commonfate_gcp_project_selector` [Selector](/config/selectors) resource to your Common Fate application Terraform code. As shown below, the `when` clause in the resource is a [Cedar](https://cedarpolicy.com/) expression. You can use any [Cedar operator](https://docs.cedarpolicy.com/policies/syntax-operators.html) in the `when` clause, such as `&&` and `||` to combine conditions.
 
 You'll need to use the `commonfate_gcp_project_selector` in conjunction with a `commonfate_gcp_project_availabilities` and `commonfate_access_workflow` resources.

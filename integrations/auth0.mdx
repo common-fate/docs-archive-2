@@ -57,24 +57,6 @@ Apply the changes. If the apply succeeds, you should see the integration appear 
 
 ## Provisioning access to Auth0 Organizations
 
-To grant and revoke access to Auth0 Organizations, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-In default deployments, there is a provisioner builtin to the main stack which can be configured using blocks.
-
-To configure the builtin Provisioner for Auth0 Organizations, add the `provisioner_okta_config` config block as per the example below:
-
-```hcl
-module "common-fate-deployment" {
-  source = "common-fate/common-fate-deployment/aws"
-  version = "..."
-
-  provisioner_auth0_config = {
-    domain                    = "<your domain from above, e.g. dev-1ulors88vi7zjge6.us.auth0.com>"
-    client_id                 = "<your Client ID from above, e.g. ISQp0GiY0xcdODDdWRFnuh5Ypfm0XIa1>"
-    client_secret_secret_path = "/common-fate/prod/auth0-client-secret"
-  }
-}
-```
-
 You can now create an access workflow and availabilities:
 
 ```hcl

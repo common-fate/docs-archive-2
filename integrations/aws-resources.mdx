@@ -86,29 +86,6 @@ If after 10 minutes you do not see resources appear, check the logs of the `comm
 
 ## Provisioning access to AWS Resources
 
-To grant and revoke access to AWS Resources, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-
-Add the following Provisioner registration inside your Application Configuration repository:
-
-```hcl
-# config/main.tf (in the Config folder, see: https://github.com/common-fate/byoc-aws-starter-config/tree/main/config)
-
-resource "commonfate_webhook_provisioner" "aws" {
-  url = "http://common-fate-prod-builtin-provisioner.common-fate-prod-builtin.internal:9999"
-  capabilities = [
-    {
-      target_type = "AWS::Account"
-      role_type   = "AWS::DynamicRole"
-      belonging_to = {
-        type = "AWS::Organization"
-        id   = "<Your AWS Organization ID>"
-      }
-    },
-  ]
-}
-
-```
-
 You can now create an access workflow and availabilities:
 
 ```hcl
@@ -163,7 +140,7 @@ Users can access this role via the Common Fate web console by visiting their req
 
 # Cedar policies
 
-### Permit Access::Role::"Reader" access to S3 Buckets in a specific OU 
+### Permit Access::Role::"Reader" access to S3 Buckets in a specific OU
 
 ```
 permit (
