@@ -122,7 +122,7 @@ Your user ID is shown in brackets at the end of the CLI output. It should look s
 
 Then, [add a Cedar policy](/authz/introduction#deploying-authorization-policies-to-terraform) which grants access to the `CF::Control::Integration::Reset::ResetService::Action::"ResetEntraUsers"` action:
 
-```cedar
+```js
 permit(
   principal == CF::User::"<YOUR_USER_ID_HERE>", // replace with your user ID, e.g. CF::User::"usr_2ZFBBf4gOevAXQi9aAfK2tYUeFa"
   action ==

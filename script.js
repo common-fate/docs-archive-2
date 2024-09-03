@@ -57,15 +57,25 @@ Prism.languages.cedar = {
 // This function runs in the background to highlight cedar code blocks using this custom language spec which was sourced from
 // https://github.com/cedar-policy/prism-cedar
 (function () {
-  function highlightCedarCodeIfPathMatches() {
-    // Find all code blocks with the class 'language-cedar'
-    const cedarCodeBlocks = document.querySelectorAll("code.language-cedar");
+  function highlightCedarCode() {
+    // Find all code blocks with the class 'language-js'
+    // this is used to mostly avoid a flicker from white to highlighted
+    // the js is close, and is run before this custom code runs
+    // ideally we could add the language to mintlify statically
+    const jsCodeBlocks = document.querySelectorAll("code.language-js");
 
-    cedarCodeBlocks.forEach((block) => {
+    jsCodeBlocks.forEach((block) => {
       // Check if the block has already been highlighted
       if (!block.hasAttribute("data-highlighted")) {
+        // Change the language class to 'language-cedar'
+        block.className = block.className.replace(
+          "language-js",
+          "language-cedar"
+        );
+
         // Highlight the block
         Prism.highlightElement(block);
+
         // Mark the block as highlighted
         block.setAttribute("data-highlighted", "true");
       }
@@ -73,14 +83,14 @@ Prism.languages.cedar = {
   }
 
   // Listen for changes in the URL caused by the browser's back/forward buttons
-  window.addEventListener("popstate", highlightCedarCodeIfPathMatches);
+  window.addEventListener("popstate", highlightCedarCode);
 
   // Listen for changes in the URL hash (if applicable)
-  window.addEventListener("hashchange", highlightCedarCodeIfPathMatches);
+  window.addEventListener("hashchange", highlightCedarCode);
 
   // Check the URL periodically if the app updates the path dynamically
-  setInterval(highlightCedarCodeIfPathMatches, 250);
+  setInterval(highlightCedarCode, 250);
 
   // Run on initial load as soon as possible
-  highlightCedarCodeIfPathMatches();
+  highlightCedarCode();
 })();
