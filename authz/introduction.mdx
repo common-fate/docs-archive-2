@@ -11,7 +11,7 @@ We recommend using the [Cedar Language Guide](https://docs.cedarpolicy.com/) in 
 
 Decorators are annotations added to Cedar policies to provide additional instructions or messages to end users. They serve as helpful hints or notifications regarding the policy rules. For instance:
 
-```jsx
+```js
 @advice("Auto-approved because the access is to the test environment")
 ```
 
@@ -21,7 +21,7 @@ This decorator provides guidance to users by indicating that the access is autom
 
 The `principal` component specifies the entity seeking access. For example:
 
-```jsx
+```js
 principal == CF::User::"usr_2ZDvUXOkW9VX9qSjupKLKxRypGN";
 ```
 
@@ -51,7 +51,7 @@ You can find more details about them [here](/observability/authorization).
 
 The `resource` component specifies the target or subject of the action. It identifies the entity upon which actions are taken. For example:
 
-```jsx
+```js
 resource == GCP::Folder::"folders/1046849679918"; // Test Folder ID
 ```
 
@@ -59,7 +59,7 @@ resource == GCP::Folder::"folders/1046849679918"; // Test Folder ID
 
 The `when` and `unless` components define additional conditions under which the action is allowed. For instance:
 
-```jsx
+```js
 when { resource.approved }
 ```
 
@@ -67,7 +67,7 @@ when { resource.approved }
 
 Here's an example Cedar policy allowing users to close their own requests:
 
-```jsx
+```js
 @advice("Closing your own request is permitted")
 permit (
     principal,
