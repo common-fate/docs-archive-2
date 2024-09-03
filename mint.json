@@ -50,6 +50,7 @@
         "introduction",
         "setup/deploy",
         "setup/glossary",
+        "setup/built-in-roles",
         "setup/troubleshooting",
         "setup/security",
         "setup/customize-auth-domain",
