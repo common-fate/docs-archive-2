@@ -81,7 +81,7 @@ module "common_fate_aws_roles" {
 
    **Read Policy:**
 
-   ```json
+   ```cedaron
    {
      "Version": "2012-10-17",
      "Statement": [
@@ -116,7 +116,7 @@ module "common_fate_aws_roles" {
 
    **Provision Policy:**
 
-   ```json
+   ```cedaron
    {
      "Version": "2012-10-17",
      "Statement": [
@@ -137,7 +137,7 @@ module "common_fate_aws_roles" {
 
    **[Optional] Assign Management Account IDC Policy:**
 
-   ```json
+   ```cedaron
    {
      "Version": "2012-10-17",
      "Statement": [
@@ -375,7 +375,7 @@ resource "commonfate_aws_account_selector" "example" {
 
 Rather than using an administrative access role to provision the AWS integration roles, you can use the following policy which will permit deploying and updating the integration roles:
 
-```json
+```cedaron
 {
   "Version": "2012-10-17",
   "Statement": [

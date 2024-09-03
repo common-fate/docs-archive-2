@@ -132,7 +132,7 @@ resource "aws_security_group_rule" "postgres_access_from_proxy" {
 
 The AWS Secrets Manager secret value referenced by `passwordSecretsManagerARN` **must** be a key/value pair containing a `password` key. For example, the following secret in JSON format is valid:
 
-```json
+```cedaron
 { "username": "postgres", "password": "postgrespassword" }
 ```
 

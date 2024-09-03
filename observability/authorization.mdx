@@ -31,7 +31,7 @@ Your user ID should look something like `usr_2ZaVKh5QwjlPsy1ImKc6GY2XbAf`.
 
 Then, [add a Cedar policy](/authz/introduction#deploying-authorization-policies-to-terraform) which grants access to the `CF::Authz::Action::"GetEvaluation"` action:
 
-```js
+```cedar
 permit(
   principal == CF::User::"<YOUR_USER_ID_HERE>", // replace with your user ID, e.g. CF::User::"usr_2ZaVKh5QwjlPsy1ImKc6GY2XbAf"
   action == CF::Authz::Action::"GetEvaluation",
@@ -41,7 +41,7 @@ permit(
 
 Alternatively, you can grant yourself access to actions in the `CF::Admin::Action::"Read"` group, which contains all read-only administrative actions. `CF::Authz::Action::"GetEvaluation"` belongs to `CF::Admin::Action::"Read"`. To grant access using this approach, apply the following policy:
 
-```js
+```cedar
 permit(
   principal == CF::User::"<YOUR_USER_ID_HERE>", // replace with your user ID, e.g. CF::User::"usr_2ZaVKh5QwjlPsy1ImKc6GY2XbAf"
   action in CF::Admin::Action::"Read", // important: use 'in' rather than '==', because this is a group of actions
