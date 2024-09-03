@@ -17,7 +17,7 @@ On new deployments, the built-in roles are ready for use by default to help you 
 
 The simplest way you make the role available to request is to add the following Cedar policy:
 
-```cedar
+```js
 permit (
     principal is CF::User,
     action == Access::Action::"Request",
@@ -43,7 +43,7 @@ Users will be able to request access for up to 24 hours by creating a request in
 
 You can restrict access to a specific built-in role by adding a `when` clause to your Cedar policy:
 
-```cedar
+```js
 permit (
     principal is CF::User,
     action == Access::Action::"Request",
