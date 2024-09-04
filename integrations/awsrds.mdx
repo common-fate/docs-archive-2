@@ -45,10 +45,11 @@ The Common Fate RDS Proxy handles MySQL and Postgres connections at the wire pro
 
 ## Deploying the Proxy
 
-The proxy module is deployed into the account containing the target RDS instances. You will need to configure the network ingress from the proxy to your databases.
-In the below example we have shown how you can add aws_security_group_rule resources to permit this access.
+The proxy module is deployed into the account containing the target RDS instances.
 
-To expose a database to Common Fate, you will need to register them with our `proxy-resource-aws-rds` Terraform module. Some examples have been provided below for configuring a mysql and postgres database.
+To deploy and register the proxy with Common Fate use our [commmon-fate-proxy-ecs](https://registry.terraform.io/modules/common-fate/common-fate-proxy-ecs/aws/latest) module which will handle deploying the ECS task and networking. Below is an example using the module.
+
+To expose a database to Common Fate, you will need to register them with our [proxy-resource-aws-rds](https://registry.terraform.io/modules/common-fate/proxy-resource-aws-rds/commonfate/latest) Terraform module. Some examples have been provided below for configuring a mysql and postgres database.
 The username field should match a user that exists in the database, you can consider creating a read only user in your database to limit the actions that can be taken while connected to the database.
 
 
@@ -57,8 +58,8 @@ data "aws_partition" "current" {}
 data "aws_caller_identity" "current" {}
 
  module "proxy" {
-  source    =  "common-fate/common-fate-proxy-ecs/aws"
-  id = "<choose an id>"
+  source                     =  "common-fate/common-fate-proxy-ecs/aws"
+  id                         = "<choose an id>"
   aws_region                 = "us-west-2"
   aws_account_id             = data.aws_caller_identity.current.account_id
   common_fate_aws_account_id = "12345678912" // the account where Common Fate is deployed
@@ -69,47 +70,56 @@ data "aws_caller_identity" "current" {}
   ecs_cluster_name           = "" // the ECS Cluster name
   auth_issuer                = module.common-fate-deployment.outputs.auth_issuer // fetch this from your Common Fate deployment
 
-  proxy_service_client_id     = module.common-fate-deployment.outputs.provisioner_client_id // fetch this from your Common Fate deployment
-  proxy_service_client_secret = module.common-fate-deployment.provisioner_client_secret // fetch this from your Common Fate deployment
+  proxy_service_client_id    = module.common-fate-deployment.outputs.provisioner_client_id // fetch this from your Common Fate deployment
+  proxy_service_client_secret= module.common-fate-deployment.provisioner_client_secret // fetch this from your Common Fate deployment
 
   app_url = "https://commonfate.example.com" // Your Common Fate App url
-
-
 
 }
 
 
-module "proxy-resource-aws-rds-sql" {
-  source  = "common-fate/proxy-resource-aws-rds/commonfate"
-  proxy_id=module.proxy.proxy_id
-  app_url = "https://commonfate.example.com" // Your Common Fate App url
-  rds_name="us-west-2-prod" //used to lookup the rds database with the AWS datasource
-  rds_security_group_id="sg-12345678912" // database security group id
+module "proxy-resource-aws-rds-postgres" {
+  source                = "common-fate/proxy-resource-aws-rds/commonfate"
+  proxy_id              = module.proxy.proxy_id
+  name                  = "Prod Postgres Database"
+  app_url               = "https://commonfate.example.com" // Your Common Fate App url
+  rds_name              = "us-west-2-prod" //used to lookup the rds database with the AWS datasource
+  rds_security_group_id = "sg-12345678912" // database security group id
+  region                = "us-west-2"
+
   users = [{
      name                      = "Root"
      username                  = aws_db_instance.mysql_db.username
      passwordSecretsManagerARN = aws_db_instance.mysql_db.master_user_secret[0].secret_arn
   }]
+  
+  depends_on = [module.proxy]
+
 
  }
 
-module "proxy-resource-aws-rds-postgres" {
-  source  = "common-fate/proxy-resource-aws-rds/commonfate"
-  proxy_id=module.proxy.proxy_id
-  app_url = "https://commonfate.example.com" // Your Common Fate App url
-  rds_instance_identifier="us-west-2-prod" //used to lookup the rds database with the AWS datasource
-  rds_security_group_id="sg-12345678912" // database security group id
+module "proxy-resource-aws-rds-sql" {
+  source                = "common-fate/proxy-resource-aws-rds/commonfate"
+  proxy_id              = module.proxy.proxy_id
+  name                  = "Prod SQL Database"
+  app_url               = "https://commonfate.example.com" // Your Common Fate App url
+  rds_name              = "us-west-2-prod" //used to lookup the rds database with the AWS datasource
+  rds_security_group_id = "sg-12345678912" // database security group id
+  region                = "us-west-2"
+
   users = [{
      name                      = "Root"
      username                  = aws_db_instance.postgres_db.username
      passwordSecretsManagerARN = aws_db_instance.postgres_db.master_user_secret[0].secret_arn
   }]
+  
+  depends_on = [module.proxy]
 
  }
 
 ```
 
-The `proxy-resource-aws-rds` module will create the necisary IAM policies to allow the proxy service to read the SSM secrets, create the security group rule allowing the proxy to access the database, and registering the database with Common Fate so it knows of its existence.
+The `proxy-resource-aws-rds` module will create the necessary IAM policies to allow the proxy service to read the SSM secrets, create the security group rule allowing the proxy to access the database, and registering the database with Common Fate so it knows of its existence.
 
 The AWS Secrets Manager secret value referenced by `passwordSecretsManagerARN` **must** be a key/value pair containing a `password` key. For example, the following secret in JSON format is valid:
 
