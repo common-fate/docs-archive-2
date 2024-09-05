@@ -3,6 +3,56 @@ title: "Migration Guide"
 description: "This page will detail migration steps to upgrade your deployment of Common Fate to new versions."
 ---
 
+## v2.5.0
+
+In this release, the `aws` provider block has been [removed from the Common Fate Terraform module](https://github.com/common-fate/terraform-aws-common-fate-deployment/pull/316). This change has been made to allow the `aws` provider to be configured _outside_ of the Common Fate module.
+
+We recommend running a `terraform plan` when upgrading to this version to confirm that no unexpected resources will be deleted or recreated.
+
+When updating to this version, please ensure that you have configured an `aws` provider outside of the Common Fate module. For example:
+
+```hcl
+provider "aws" {
+  allowed_account_ids = ["123456789012"]
+  region              = "us-east-1"
+}
+
+module "common-fate" {
+  source  = "common-fate/common-fate-deployment/aws"
+  version = "2.4.2"
+
+  // ... other variables here
+}
+```
+
+If for any reason your Terraform state file is stored in a different AWS region to your Common Fate deployment, you will need to add a provider with an alias. For example:
+
+```hcl
+provider "aws" {
+  allowed_account_ids = ["123456789012"]
+  region              = "us-east-1"
+}
+
+provider "aws" {
+  alias               = "us-west-2"
+  allowed_account_ids = ["123456789012"]
+  region              = "us-west-2"
+}
+
+module "common-fate" {
+  source  = "common-fate/common-fate-deployment/aws"
+  version = "2.4.2"
+
+  region = "us-west-2"
+
+  providers = {
+    aws = aws.us-west-2
+  }
+
+  // ... other variables here
+}
+```
+
 ## v2.0.0
 
 The main change in v2.0.0 is the removal of the authz service from the infrastructure, and some configuration variables which have been removed.
