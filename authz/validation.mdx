@@ -42,7 +42,7 @@ cd common-fate-policy-testing
 
 Inside this folder, we'll create a file called `example.cedar`. This file will contain an invalid Cedar policy:
 
-```cedar example.cedar
+```js example.cedar
 permit (
     principal,
     action == Action::"Invalid",
@@ -99,7 +99,7 @@ Warning:   ⚠ for policy `policy4`, policy is impossible: the policy expression
 
 Let's fix the policy. Replace the contents of `example.cedar` with:
 
-```cedar example.cedar
+```js example.cedar
 permit (
     principal,
     action == Access::Action::"Request",
@@ -193,7 +193,7 @@ These are described in more detail below.
 
 If you've come from an earlier version of Common Fate prior to the introduction of Cedar schemas, you may have Cedar policies similar referencing resource attributes similar to the below:
 
-```cedar
+```js
 permit (
     principal,
     action == Access::Action::"Activate",

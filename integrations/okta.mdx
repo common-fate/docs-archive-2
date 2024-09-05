@@ -49,41 +49,6 @@ Apply the changes. If the apply succeeds, you should see the integration appear 
 
 ## Provisioning access to Okta Groups
 
-To grant and revoke access to Okta Groups, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-In default deployments, there is a provisioner builtin to the main stack which can be configured using blocks.
-
-To configure the builtin Provisioner for Okta Groups, add the `provisioner_okta_config` config block as per the example below:
-
-```hcl
-module "common-fate-deployment" {
-  source = "common-fate/common-fate-deployment/aws"
-  version = "1.22.0"
-
-  provisioner_okta_config = {
-    organization_id           = "<Your Okta organization id>"
-    api_key_secret_path       = "/common-fate/prod/okta-api-key"
-  }
-}
-```
-
-You'll additionally need to add the following Provisioner registration inside your Application Configuration repository:
-
-```hcl
-resource "commonfate_webhook_provisioner" "prod" {
- url = "http://common-fate-prod-builtin-provisioner.common-fate-prod-builtin.internal:9999"
-  capabilities = [
-    {
-      target_type = "Okta::Group"
-      role_type   = "Okta::GroupRole"
-      belonging_to = {
-        type = "Okta::Organization"
-        id   = "<Your Okta organization id>"
-      }
-    },
-  ]
-}
-```
-
 You can now create an access workflow and availabilities:
 
 ```hcl

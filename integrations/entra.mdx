@@ -69,42 +69,6 @@ Apply the changes. If the apply succeeds, you should see the integration appear 
 
 ## Provisioning access to Entra Groups
 
-To grant and revoke access to Entra Groups, Common Fate uses a service called the Provisioner. The Provisioner is an internal service and is not user-facing.
-In default deployments, there is a provisioner builtin to the main stack which can be configured using blocks.
-
-To configure the builtin Provisioner for Entra Groups, add the `provisioner_entra_config` config block as per the example below:
-
-```hcl
-module "common-fate-deployment" {
-  source = "common-fate/common-fate-deployment/aws"
-  version = "1.22.0"
-
-  provisioner_entra_config = {
-    tenant_id                 = "<Your Entra tenant id>"
-    client_id                 = "<Your Entra client id>"
-    client_secret_secret_path = "/common-fate/prod/entra-client-secret"
-  }
-}
-```
-
-You'll additionally need to add the following Provisioner registration inside your Application Configuration repository:
-
-```hcl
-resource "commonfate_webhook_provisioner" "prod" {
- url = "http://common-fate-prod-builtin-provisioner.common-fate-prod-builtin.internal:9999"
-  capabilities = [
-    {
-      target_type = "Entra::Group"
-      role_type   = "Entra::GroupRole"
-      belonging_to = {
-        type = "Entra::Tenant"
-        id   = "<Your Entra tenant id>"
-      }
-    },
-  ]
-}
-```
-
 You can now create an access workflow and availabilities:
 
 ```hcl
