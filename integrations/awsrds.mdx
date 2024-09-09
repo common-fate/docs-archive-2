@@ -54,131 +54,95 @@ The username field should match a user that exists in the database, you can cons
 
 
 ```hcl
-data "aws_partition" "current" {}
-data "aws_caller_identity" "current" {}
+  terraform {
+    required_providers {
+      commonfate = {
+        source  = "common-fate/commonfate"
+        version = "~> 2.25"
+      }
+      aws = {
+        source  = "hashicorp/aws"
+        version = "~> 5.0"
+      }
+    }
+  }
+
+  provider "commonfate" {
+    api_url            = "https://commonfate.example.com" // Your Common Fate App url
+    oidc_client_id     = "<Your Provisioner OIDC client ID>"
+    oidc_client_secret = "<Your Provisioner OIDC client secret>"
+    oidc_issuer        = "<Your OIDC issuer>"
+  }
+
 
  module "proxy" {
   source                     =  "common-fate/common-fate-proxy-ecs/aws"
   id                         = "<choose an id>"
-  aws_region                 = "us-west-2"
-  aws_account_id             = data.aws_caller_identity.current.account_id
   common_fate_aws_account_id = "12345678912" // the account where Common Fate is deployed
-  aws_partition              = data.aws_partition.current.id
   subnet_ids                 = [] // the proxy must be on a subnet with outbound internet access for AWS SSM to connect
   vpc_id                     = "" // the VPC to deploy into
   ecs_cluster_id             = "" // the ECS Cluster to deploy into
   ecs_cluster_name           = "" // the ECS Cluster name
   auth_issuer                = module.common-fate-deployment.outputs.auth_issuer // fetch this from your Common Fate deployment
 
-  proxy_service_client_id    = module.common-fate-deployment.outputs.provisioner_client_id // fetch this from your Common Fate deployment
-  proxy_service_client_secret= module.common-fate-deployment.provisioner_client_secret // fetch this from your Common Fate deployment
+  proxy_service_client_id    = "<Your Provisioner OIDC client ID>"
+  proxy_service_client_secret= "<Your Provisioner OIDC client secret>"
 
   app_url = "https://commonfate.example.com" // Your Common Fate App url
 
 }
 
 
-module "proxy-resource-aws-rds-postgres" {
-  source                = "common-fate/proxy-resource-aws-rds/commonfate"
-  proxy_id              = module.proxy.proxy_id
-  name                  = "Prod Postgres Database"
-  app_url               = "https://commonfate.example.com" // Your Common Fate App url
-  rds_name              = "us-west-2-prod" //used to lookup the rds database with the AWS datasource
-  rds_security_group_id = "sg-12345678912" // database security group id
-  region                = "us-west-2"
+module "database" {
+  source                  = "common-fate/proxy-resource-aws-rds/commonfate"
+  proxy_id                = module.proxy.proxy_id
+  rds_instance_identifier = "example"
+  name                    = "Prod Postgres Database"
+  app_url                 = "https://commonfate.example.com" // Your Common Fate App url
+  database                = "postgres" // The name of the database on the RDS instance
+  rds_security_group_id   = "sg-12345678912" // database security group id
+  region                  = "us-west-2"
 
   users = [{
-     name                      = "Root"
-     username                  = aws_db_instance.mysql_db.username
-     passwordSecretsManagerARN = aws_db_instance.mysql_db.master_user_secret[0].secret_arn
+     name                         = "Root"
+     username                     = "postgres"
+     password_secrets_manager_arn = "<The ARN of the Secrets Manager secret for this database user>"
   }]
-  
-  depends_on = [module.proxy]
-
-
- }
-
-module "proxy-resource-aws-rds-sql" {
-  source                = "common-fate/proxy-resource-aws-rds/commonfate"
-  proxy_id              = module.proxy.proxy_id
-  name                  = "Prod SQL Database"
-  app_url               = "https://commonfate.example.com" // Your Common Fate App url
-  rds_name              = "us-west-2-prod" //used to lookup the rds database with the AWS datasource
-  rds_security_group_id = "sg-12345678912" // database security group id
-  region                = "us-west-2"
-
-  users = [{
-     name                      = "Root"
-     username                  = aws_db_instance.postgres_db.username
-     passwordSecretsManagerARN = aws_db_instance.postgres_db.master_user_secret[0].secret_arn
-  }]
-  
-  depends_on = [module.proxy]
-
  }
 
 ```
 
-The `proxy-resource-aws-rds` module will create the necessary IAM policies to allow the proxy service to read the SSM secrets, create the security group rule allowing the proxy to access the database, and registering the database with Common Fate so it knows of its existence.
-
-The AWS Secrets Manager secret value referenced by `passwordSecretsManagerARN` **must** be a key/value pair containing a `password` key. For example, the following secret in JSON format is valid:
+The common-fate/proxy-resource-aws-rds/commonfate module creates the necessary IAM policies to allow the proxy service to read the database secrets from Secrets Manager. This module also creates a security group rule allowing the proxy to access the database.
+The AWS Secrets Manager secret value referenced by `password_secrets_manager_arn` **must** be a key/value pair containing a `password` key. For example, the following secret in JSON format is valid:
 
 ```json
 { "username": "postgres", "password": "postgrespassword" }
 ```
 
-Secrets created by AWS RDS follow this format.
+Secrets managed by AWS RDS follow this format automatically.
 
 ## Configuring Common Fate
 
 In this section, you will add selectors and availabilities so that users can request access to the databases. You'll need to have [set up the Common Fate Application Configuration repository using our Terraform provider](/config/terraform).
 
-Inside your Application Configuration repository, update the following module:
-
+You can create an access workflow, or use an existing one. 
 ```hcl
-resource "commonfate_webhook_provisioner" "aws" {
-  url = "http://common-fate-prod-builtin-provisioner.common-fate-prod-builtin.internal:9999"
-  capabilities = [
-    {
-      target_type = "AWS::RDS::Database"
-      role_type   = "AWS::RDS::DatabaseUser"
-      belonging_to = {
-        type = "AWS::Organization"
-        id   = "<Your AWS Organization ID>"
-      }
-    },
-  ]
-}
-```
-
-You can now create an access workflow and availabilities, these resources make a single database and role available for requesting:
-
-```hcl
-
 resource "commonfate_access_workflow" "rds" {
   name                     = "RDS"
   access_duration_seconds  = 60
   priority                 = 1
 }
+```
 
-resource "commonfate_aws_rds_database_availability" "mysql" {
+Now create a commonfate_aws_rds_database_availability. This resources make a single database and user available to request:
+
+```hcl
+resource "commonfate_aws_rds_database_availability" "postgres_root" {
   workflow_id                  = commonfate_access_workflow.rds.id
   // you can find the database id in the Common Fate console on the resources page
-  aws_rds_database_id          = "arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
+  aws_rds_database_id          = "arn:aws:rds:us-west-2:12345678912:db:example/postgres"
   // you can find the user id in the Common Fate console on the resources page or in the children tab of the database resource
-  aws_rds_database_user_id     = "test@arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
-  aws_identity_store_id        = local.identity_store_id
-}
-resource "commonfate_aws_rds_database_availability" "postgres" {
-  workflow_id                  = commonfate_access_workflow.rds.id
-  aws_rds_database_id          = "arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
-  aws_rds_database_user_id     = "postgres@arn:aws:rds:us-west-2:12345678912:db:example-postgres-db/postgres"
-  aws_identity_store_id        = local.identity_store_id
-}
-resource "commonfate_aws_rds_database_availability" "postgres_read_only" {
-  workflow_id                  = commonfate_access_workflow.rds.id
-  aws_rds_database_id          = "arn:aws:rds:us-west-2:12345678912:db:example-mysql-db/test"
-  aws_rds_database_user_id     = "read_only@arn:aws:rds:us-west-2:12345678912:db:example-postgres-db/postgres"
+  aws_rds_database_user_id     = "postgres@arn:aws:rds:us-west-2:12345678912:db:example/postgres"
   aws_identity_store_id        = local.identity_store_id
 }
 ```
