@@ -196,5 +196,10 @@
       "source": "/setup/authz",
       "destination": "/authz/introduction"
     }
-  ]
+  ],
+  "analytics": {
+    "plausible": {
+      "domain": "docs.commonfate.io"
+    }
+  }
 }
