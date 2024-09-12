@@ -4,14 +4,14 @@ description: "Set up JIT access to built-in roles to administer your Common Fate
 ---
 
 Some features and actions in your Common Fate deployment can only be accessed by a user who has been assigned to the administrator role.
-The adminsitrator role is referred to as a built-in role, and it can be accessed using a JIT assignment in the same way that users request access to other entitlements.
+The administrator role is referred to as a built-in role, and it can be accessed using a JIT assignment in the same way that users request access to other entitlements.
 On new deployments, the built-in roles are ready for use by default to help you get started.
 
 ## Built-in roles
 
 | name         | ID                        | access |
 | ------------ | ------------------------- | ------ |
-| Adminitrator | CF::Role::"administrator" | Manage policies, read deployment secrets, create integrations    |
+| Administrator | CF::Role::"administrator" | Manage policies, read deployment secrets, create integrations    |
 
 ## Make the Administrator role available for request
 
@@ -48,13 +48,13 @@ permit (
     principal is CF::User,
     action == Access::Action::"Request",
     resource is CF::DeploymentEntitlement
-) when {resource.role == CF::Role::"adminsitrator"};
+) when {resource.role == CF::Role::"administrator"};
 
 permit (
     principal is CF::User,
     action == Access::Action::"Activate",
     resource is CF::DeploymentGrant
-) when {resource.role == CF::Role::"adminsitrator"};
+) when {resource.role == CF::Role::"administrator"};
 
 permit (
     principal is CF::User,
