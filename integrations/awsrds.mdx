@@ -52,6 +52,8 @@ To deploy and register the proxy with Common Fate use our [commmon-fate-proxy-ec
 To expose a database to Common Fate, you will need to register them with our [proxy-resource-aws-rds](https://registry.terraform.io/modules/common-fate/proxy-resource-aws-rds/commonfate/latest) Terraform module. Some examples have been provided below for configuring a mysql and postgres database.
 The username field should match a user that exists in the database, you can consider creating a read only user in your database to limit the actions that can be taken while connected to the database.
 
+<Tip>It is highly recommend to deploy the proxy and RDS modules in its own terraform root module. This avoids any dependency issues that may come up when making changes to your Common Fate deployment.</Tip>
+
 
 ```hcl
   terraform {
