@@ -42,44 +42,6 @@ credential_process = granted credential-process --profile AccountName/RoleName
 # ...
 ```
 
-### All available Glide Access Rules
-
-```
-granted sso generate --sso-region ap-southeast-2 --source cf https://example.awsapps.com/start
-```
-
-Output:
-
-```
-[profile AccountName/RoleName]
-granted_sso_region = ap-southeast-2
-granted_sso_account_id = 123456789012
-granted_sso_role_name = RoleName
-granted_sso_start_url = https://example.awsapps.com/start
-commonfate_generated_by = commonfate
-credential_process = granted credential-process --profile AccountName/RoleName
-# ...
-```
-
-### Multiple profile sources
-
-```
-granted sso generate --sso-region ap-southeast-2 --source cf --source aws-sso https://example.awsapps.com/start
-```
-
-Output:
-
-```
-[profile AccountName/RoleName]
-granted_sso_region = ap-southeast-2
-granted_sso_account_id = 123456789012
-granted_sso_role_name = RoleName
-granted_sso_start_url = https://example.awsapps.com/start
-commonfate_generated_by = commonfate
-credential_process = granted credential-process --profile AccountName/RoleName
-# ...
-```
-
 ### Custom profile format
 
 ```
@@ -153,7 +115,6 @@ Granted supports the below profile sources, using the `--source` flag. We'd love
 | Source                            | CLI flag           | Description                                                                                       |
 | --------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
 | AWS IAM Identity Center (default) | `--source aws-sso` | Creates a profile for each account and permission set available to you in AWS IAM Identity Center |
-| Glide                             | `--source cf`      | Creates a profile for each account and permission set available as an Access Rule within Glide    |
 
 ## `generate` command
 
