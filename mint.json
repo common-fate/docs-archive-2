@@ -77,7 +77,19 @@
             "granted/usage/profile-registry"
           ]
         },
-        "granted/configuration",
+        {
+          "group": "Configuration",
+          "pages": [
+            "granted/configuration/settings",
+            "granted/configuration/browsers",
+            "granted/configuration/cache",
+            "granted/configuration/autocomplete",
+            "granted/configuration/errors",
+            "granted/configuration/profile-ordering",
+            "granted/configuration/quiet-mode",
+            "granted/configuration/misc"
+          ]
+        },
         {
           "group": "Recipes",
           "pages": [

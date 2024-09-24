@@ -1,0 +1,25 @@
+---
+title: "Miscellaneous"
+---
+
+## Granted Configuration Editing
+
+Granted gives you tools to be able to interact with the config that is set under the hood.
+
+- Use the `-unset` flag to remove any exported environment variables that Granted has provisioned
+  eg.
+
+```
+assume -unset
+```
+
+- Use the `uninstall` command to reset the granted configuration to a factory default
+
+```
+granted uninstall
+```
+
+
+## Customize AWS Configuration and Credentials File Locations
+
+Specify the location of your AWS configuration file and credentials file through environment variables. Set the `$AWS_CONFIG_FILE` and `$AWS_SHARED_CREDENTIALS_FILE` environment variables to configure these file locations according to your preferences.
