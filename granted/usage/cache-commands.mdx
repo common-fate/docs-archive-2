@@ -38,3 +38,37 @@ To list currently cached credentials along with their secure storage type, use:
 ```shell
 granted cache list
 ```
+
+## SSO Configuration
+
+- To list all SSO tokens saved in the Granted keychain use the `sso-tokens` command
+
+```
+granted sso-tokens
+```
+
+```
+granted sso-tokens list
+```
+
+- To remove a token from the local store use `sso-tokens clear`
+
+```
+granted sso-tokens clear
+```
+
+```
+granted sso-tokens clear profile_name
+```
+
+- To remove all tokens from the store use the `--all` flag
+
+```
+granted sso-tokens clear --all
+```
+
+- To disable cache for a command use the `--no-cache' flag
+
+```
+assume profile-1 --no-cache
+```
