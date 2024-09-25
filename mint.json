@@ -67,6 +67,13 @@
         {
           "group": "Usage",
           "pages": [
+            {
+              "group": "Common Fate",
+              "pages": [
+                "granted/usage/common-fate/access-requests",
+                "granted/usage/common-fate/profile-generation"
+              ]
+            },
             "granted/usage/assuming-roles",
             "granted/usage/console",
             "granted/usage/headless",
@@ -80,7 +87,6 @@
             "granted/usage/errors",
             "granted/usage/profile-ordering",
             "granted/usage/quiet-mode",
-            "granted/usage/access-requests",
             "granted/usage/automatically_reassume",
             "granted/usage/cache-commands",
             "granted/usage/credential-process",
@@ -236,6 +242,10 @@
     {
       "source": "/recipes/wsl-vscode",
       "destination": "/usage/wsl-vscode"
+    },
+    {
+      "source": "granted/usage/access-requests",
+      "destination": "granted/usage/common-fate/access-requests"
     }
   ],
   "analytics": {
