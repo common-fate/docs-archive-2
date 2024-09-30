@@ -1,0 +1,47 @@
+---
+title: "Profile Generation"
+---
+
+
+To generate profiles that you have access to in Common Fate, Granted can utilize a [HTTP Profile Registry](/usage/profile-registry). Granted's Profile Registry synchronizes these profiles to the default AWS config file located locally at `~/.aws/config`.
+
+# Adding a HTTP registry
+
+Granted version v0.26.0+ includes support for specifying a HTTP registry. This can be connected with a [Common Fate deployment](/introduction)
+
+Granted uses OIDC to authenticate to the HTTP registry. The `~/.cf/config` file is used to configure the OIDC provider. Here's an example configuration, using Cognito as the OIDC provider.
+
+```toml ~/.cf/config
+current_context = "default"
+
+[context]
+  [context.default]
+    oidc_issuer = "https://cognito-idp.ap-southeast-2.amazonaws.com/ap-southeast-2_xzhfVdcnp"
+    oidc_client_id = "169vrs7th13n3rj1pvqiic3cxA"
+```
+
+To log in to the OIDC provider, you can run `granted auth login`.
+
+# Common Fate built-in Profile Registry
+
+Granted connects with [Common Fate](/introduction) to automatically sync available AWS profiles into your `~/.aws/config` file.
+
+<Info>If you have set up the Common Fate `cf` CLI skip to step 3.</Info>
+
+1. Create your Common Fate configuration by running `granted auth configure <cf_deployment_url>`. This will set the necessary config in your [cf config](/user-guide/cli/config)
+
+```bash
+granted auth configure https://commonfate.example.com # replace this with your deployment URL
+```
+
+2. Next authenticate yourself with the deployment by running `granted auth login`.
+
+```bash
+granted auth login
+```
+
+3. Add the profile registry:
+
+```bash
+granted registry add --name common-fate --type http --url https://commonfate.example.com # replace this with your deployment URL
+```

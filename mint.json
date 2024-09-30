@@ -67,6 +67,13 @@
         {
           "group": "Usage",
           "pages": [
+            {
+              "group": "Common Fate",
+              "pages": [
+                "granted/usage/common-fate/access-requests",
+                "granted/usage/common-fate/profile-generation"
+              ]
+            },
             "granted/usage/assuming-roles",
             "granted/usage/console",
             "granted/usage/headless",
@@ -74,25 +81,25 @@
             "granted/usage/dotenv",
             "granted/usage/automatic-config-generation",
             "granted/usage/storing-iam-credentials-securely",
-            "granted/usage/profile-registry"
+            "granted/usage/profile-registry",
+            "granted/usage/browsers",
+            "granted/usage/autocomplete",
+            "granted/usage/errors",
+            "granted/usage/profile-ordering",
+            "granted/usage/quiet-mode",
+            "granted/usage/automatically_reassume",
+            "granted/usage/cache-commands",
+            "granted/usage/credential-process",
+            "granted/usage/disable-usage-tips",
+            "granted/usage/eks",
+            "granted/usage/inline-role-assumption",
+            "granted/usage/pass",
+            "granted/usage/ubuntu-keyring",
+            "granted/usage/wsl-vscode"
           ]
         },
         "granted/configuration",
-        {
-          "group": "Recipes",
-          "pages": [
-            "granted/recipes/access-requests",
-            "granted/recipes/automatically_reassume",
-            "granted/recipes/cache-commands",
-            "granted/recipes/credential-process",
-            "granted/recipes/disable-usage-tips",
-            "granted/recipes/eks",
-            "granted/recipes/inline-role-assumption",
-            "granted/recipes/pass",
-            "granted/recipes/ubuntu-keyring",
-            "granted/recipes/wsl-vscode"
-          ]
-        },
+
         "granted/faq",
         "granted/troubleshooting",
         "granted/security",
@@ -195,6 +202,50 @@
     {
       "source": "/setup/authz",
       "destination": "/authz/introduction"
+    },
+    {
+      "source": "/recipes/access-requests",
+      "destination": "/usage/access-requests"
+    },
+    {
+      "source": "/recipes/automatically_reassume",
+      "destination": "/usage/automatically_reassume"
+    },
+    {
+      "source": "/recipes/cache-commands",
+      "destination": "/usage/cache-commands"
+    },
+    {
+      "source": "/recipes/credential-process",
+      "destination": "/usage/credential-process"
+    },
+    {
+      "source": "/recipes/disable-usage-tips",
+      "destination": "/usage/disable-usage-tips"
+    },
+    {
+      "source": "/recipes/eks",
+      "destination": "/usage/eks"
+    },
+    {
+      "source": "/recipes/inline-role-assumption",
+      "destination": "/usage/inline-role-assumption"
+    },
+    {
+      "source": "/recipes/pass",
+      "destination": "/usage/pass"
+    },
+    {
+      "source": "/recipes/ubuntu-keyring",
+      "destination": "/usage/ubuntu-keyring"
+    },
+    {
+      "source": "/recipes/wsl-vscode",
+      "destination": "/usage/wsl-vscode"
+    },
+    {
+      "source": "granted/usage/access-requests",
+      "destination": "granted/usage/common-fate/access-requests"
     }
   ],
   "analytics": {
